@@ -1,26 +1,27 @@
 ---
-title : "Giới thiệu"
+title : "សេចក្តីផ្តើម"
 date :  "`r Sys.Date()`" 
 weight : 1 
 chapter : false
 pre : " <b> 1. </b> "
 ---
-#### Tổng quan
-Với **Amazon GuardDuty**, một dịch vụ được quản lý hoàn toàn bởi AWS, bài thực hành này sẽ khái quát làm thế nào để phát hiện những mối nguy hại đến hệ thống và khắc phục chúng. Chúng ta sẽ tiến hành phân tích, đánh giá và làm thế nào để báo động cũng như khắc phục các vấn đề bảo mật dựa trên những phát hiện (*Findings*) của GuardDuty.
+#### ទិដ្ឋភាពទូទៅ
+ជាមួយ **Amazon GuardDuty** ដែលជាសេវាកម្មគ្រប់គ្រងដោយ AWS ទាំងស្រុង មេរៀនអនុវត្តន៍នេះនឹងពន្យល់ពីរបៀបរកឃើញការគំរាមកំហែងប្រព័ន្ធ និងដោះស្រាយវា។ យើងនឹងធ្វើការវិភាគ វាយតម្លៃ និងរបៀបជូនដំណឹង ក៏ដូចជាដោះស្រាយបញ្ហាសន្តិសុខដោយផ្អែកលើការរកឃើញ (*Findings*) របស់ GuardDuty។
 
-Nhằm chuẩn bị cho bài thực hành này, bằng cách sử dụng **CloudFormation Template** có sẵn, chúng ta sẽ tái hiện những cuộc tấn công và cách khắc phục tự động bằng việc kết hợp giữa **EventBridge Event Rules** và **Lambda Functions**.
-- **Cấp độ:** 300
-- **Thời lượng:** 1-2 tiếng
-- **Điều kiện cần:** IAM User (Admin) và AWS CLI
-- **Các chức năng của **CSF** (Cybersecurity Framework):**
-  - Bảo vệ (Protect)
-  - Phát hiện (Detect)
-  - Phản hồi (Respond)
-- **Các góc nhìn bảo mật của **CAF** (Cloud Adoption Framework):**
-  - Preventative (Khả năng phòng chống)
-  - Detective (Khả năng truy vết)
-  - Responsive (Khả năng phản ứng)
-- **Các dịch vụ AWS được sử dụng:**
+ដើម្បីត្រៀមសម្រាប់មេរៀនអនុវត្តន៍នេះ ដោយប្រើប្រាស់ **CloudFormation Template** ដែលមានស្រាប់ យើងនឹងធ្វើការចម្លងការវាយប្រហារ និងដំណោះស្រាយស្វ័យប្រវត្តិដោយរួមបញ្ចូល **EventBridge Event Rules** និង **Lambda Functions**។
+
+- **កម្រិត:** 300
+- **រយៈពេល:** 1-2 ម៉ោង
+- **តម្រូវការមុន:** IAM User (Admin) និង AWS CLI
+- **មុខងារ **CSF** (Cybersecurity Framework):**
+  - ការពារ (Protect)
+  - រកឃើញ (Detect)
+  - ឆ្លើយតប (Respond)
+- **ទស្សនៈសន្តិសុខនៃ **CAF** (Cloud Adoption Framework):**
+  - ការបង្ការ (Preventative)
+  - ការរកឃើញ (Detective)
+  - ការឆ្លើយតប (Responsive)
+- **សេវាកម្ម AWS ដែលប្រើប្រាស់:**
   - Amazon EventBridge
   - Amazon GuardDuty
   - AWS CloudTrail
@@ -28,18 +29,18 @@ Nhằm chuẩn bị cho bài thực hành này, bằng cách sử dụng **Cloud
   - VPC Security Groups
   - Amazon SNS
 
-#### Thiết lập
-> Bài thực hành sẽ được thiết lập ở **us-west-2 (Oregon)**.
+#### ការរៀបចំ
+> មេរៀនអនុវត្តន៍នឹងត្រូវបានរៀបចំនៅក្នុង **us-west-2 (Oregon)**។
 
-Chi tiết xem thêm ở phần [**Thiết lập môi trường**](1-environment-setup/).
+សម្រាប់ព័ត៌មានលម្អិត សូមមើល [**ការរៀបចំបរិយាកាស**](1-environment-setup/)។
 
-#### Tình Huống
-Bài thực hành sẽ bao gồm các tình huống như sau:
-| Thứ tự | Tên | Đặc tả | Giải pháp |
+#### ករណីសិក្សា
+មេរៀនអនុវត្តន៍នឹងរួមបញ្ចូលករណីដូចខាងក្រោម៖
+| លំដាប់ | ឈ្មោះ | ការពិពណ៌នា | ដំណោះស្រាយ |
 | ------ | --- | ------ | --------- |
-| 1 | [Compromised EC2 instance](3-compromised-ec2-instance/) | Phát hiện và hồi phục EC2 instance bị tấn công | Sự kết hợp giữa **Amazon GuardDuty**, **Amazon EventBridge Event Rules** và **AWS Lambda** |
-| 2 | [Compromised IAM credentials](4-compromised-iam-credentials/) | Xác định một cá nhân đang chủ động gọi API đến hệ thống trên AWS | Khắc phục mối nguy hại này ngay lập tức một cách thủ công (manually) |
-| 3 | [IAM role exfiltration](5-iam-role-credential-exfiltration/) | Thông qua một credential bị rò rỉ, một cá nhân đang cố gắng xâm nhập và gọi API từ một máy chủ bên ngoài | Tiến hành khắc phục với **AWS Lambda** |
+| 1 | [Compromised EC2 instance](3-compromised-ec2-instance/) | រកឃើញនិងស្តារ EC2 instance ដែលត្រូវបានវាយប្រហារ | ការរួមបញ្ចូលគ្នានៃ **Amazon GuardDuty**, **Amazon EventBridge Event Rules** និង **AWS Lambda** |
+| 2 | [Compromised IAM credentials](4-compromised-iam-credentials/) | កំណត់អត្តសញ្ញាណបុគ្គលដែលកំពុងហៅ API ទៅកាន់ប្រព័ន្ធនៅលើ AWS | ដោះស្រាយការគំរាមកំហែងនេះភ្លាមៗដោយដៃ (manually) |
+| 3 | [IAM role exfiltration](5-iam-role-credential-exfiltration/) | តាមរយៈ credential ដែលលេចធ្លាយ បុគ្គលម្នាក់កំពុងព្យាយាមចូលប្រើនិងហៅ API ពីម៉ាស៊ីនមេខាងក្រៅ | អនុវត្តការដោះស្រាយជាមួយ **AWS Lambda** |
 
-#### Dọn Dẹp
-Chi tiết ở phần [**Dọn dẹp môi trường**](7-environment-cleanup/).
+#### ការសម្អាត
+ព័ត៌មានលម្អិតនៅក្នុងផ្នែក [**ការសម្អាតបរិយាកាស**](7-environment-cleanup/)។

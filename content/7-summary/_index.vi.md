@@ -1,16 +1,16 @@
 ---
-title : "Tóm lược"
-date :  "`r Sys.Date()`" 
-weight : 7
-chapter : false
-pre : " <b> 7. </b> "
+title: "សេចក្តីសង្ខេប"
+date: "`r Sys.Date()`"
+weight: 7
+chapter: false
+pre: " <b> 7. </b> "
 ---
 
-Thông qua bài thực hành này, chúng ta đã thực hiện các bước liên quan đến việc sinh ra và phân tích các Findings, qua đó tiến hành thực hiện quá trình Remediation tương ứng nhằm giải quyết vấn đề ngay lập tức.
+តាមរយៈការអនុវត្តនេះ យើងបានអនុវត្តជំហានផ្សេងៗទាក់ទងនឹងការបង្កើត និងការវិភាគលើ Findings ដែលតាមរយៈនោះយើងអាចធ្វើការ Remediation ដើម្បីដោះស្រាយបញ្ហាភ្លាមៗ។
 
 | Finding | Scenario |
 | :-----: | :------: |
-| UnauthorizedAccess:EC2/MaliciousIPCaller.Custom | [Compromised EC2 Instance](../3-compromised-ec2-instance/) |
-| Recon:IAMUser/MaliciousIPCaller.Custom | [Compromised IAM credentials](../4-compromised-iam-credentials/) |
-| UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom | [Compromised IAM credentials](../4-compromised-iam-credentials/) |
-| UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration | [IAM Role credential exfiltration](../5-iam-role-credential-exfiltration/) |
+| UnauthorizedAccess:EC2/MaliciousIPCaller.Custom | [ម៉ាស៊ីន EC2 ដែលត្រូវបានគ្រប់គ្រង](../3-compromised-ec2-instance/) |
+| Recon:IAMUser/MaliciousIPCaller.Custom | [អត្តសញ្ញាណ IAM ដែលត្រូវបានគ្រប់គ្រង](../4-compromised-iam-credentials/) |
+| UnauthorizedAccess:IAMUser/MaliciousIPCaller.Custom | [អត្តសញ្ញាណ IAM ដែលត្រូវបានគ្រប់គ្រង](../4-compromised-iam-credentials/) |
+| UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration | [ការលួចយកព័ត៌មានសម្ងាត់តួនាទី IAM](../5-iam-role-credential-exfiltration/) |

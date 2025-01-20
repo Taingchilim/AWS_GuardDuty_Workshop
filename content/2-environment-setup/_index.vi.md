@@ -1,84 +1,76 @@
 ---
-title : "Các bước chuẩn bị"
+title : "ជំហានត្រៀម"
 date :  "`r Sys.Date()`" 
 weight : 2
 chapter : false
 pre : " <b> 2. </b> "
 ---
 
-{{% notice note %}}
-Bài thực hành sẽ được thiết lập ở **us-west-2 (Oregon)**.
-{{% /notice %}}
+**មាតិកា**
+- [លក្ខខណ្ឌចាំបាច់](#លក្ខខណ្ឌចាំបាច់)
+- [ការដំឡើង](#ការដំឡើង)
+- [ធនធាន AWS ដែលត្រូវត្រៀម?](#ធនធាន-aws-ដែលត្រូវត្រៀម)
 
-**Contents**
-- [Điều kiện cần](#điều-kiện-cần)
-- [Triển khai](#triển-khai)
-- [Tài nguyên AWS được chuẩn bị?](#tài-nguyên-aws-được-chuẩn-bị)
+#### លក្ខខណ្ឌចាំបាច់
+- **គណនី AWS**: គណនីសម្រាប់បរិយាកាស **TESTING**។
+- **សិទ្ធិ Administrator**: ត្រូវប្រាកដថាអ្នកកំពុងប្រើ **IAM user** ដែលមានសិទ្ធិជា Administrator។
+- **AWS CLI**: ត្រូវប្រាកដថាអ្នកអាចប្រើប្រាស់ AWS CLI សម្រាប់ការធ្វើតេស្តការវាយប្រហារពីកុំព្យូទ័ររបស់អ្នក។
 
-#### Điều kiện cần
-- **Tài khoản AWS**: Một tài khoản dành cho môi trường **TESTING**.
-- **Quyền hạn Administrator**: Bảo đảm rằng bạn đang sử dụng một **IAM user** với quyền hạn Administrator.
-- **AWS CLI**: Bảo đảm rằng bạn sẵn sàng sử dụng AWS CLI cho mục đích giả lập các cuộc tấn công từ máy tính của mình.
-
-#### Triển khai
+#### ការដំឡើង
 
 ---
 
-**Kích hoạt Amazon GuardDuty**
+**បើកដំណើរការ Amazon GuardDuty**
 
-1. Đăng nhập vào AWS Console, truy cập vào dịch vụ [GuardDuty](https://us-west-2.console.aws.amazon.com/guardduty/home).
-2. Bắt đầu bằng cách chọn **Get Started**.
+1. ចូលទៅក្នុង AWS Console, ចូលទៅកាន់សេវាកម្ម [GuardDuty](https://us-west-2.console.aws.amazon.com/guardduty/home)។
+2. ចាប់ផ្តើមដោយជ្រើសរើស **Get Started**។
 
 ![guardduty-get-started](/images/2-guardduty-get-started.png?featherlight=false&width=90pc)
 
-3. Đối với tài khoản mới, AWS sẽ cho chúng ta 30 ngày dùng thử, để bắt đầu sử dụng, nhấn chọn nút `Enable GuardDuty`.
+3. សម្រាប់គណនីថ្មី AWS នឹងផ្តល់ឱ្យយើង 30 ថ្ងៃសាកល្បង, ដើម្បីចាប់ផ្តើមប្រើប្រាស់ សូមចុចប៊ូតុង `Enable GuardDuty`។
 
 ![guardduty-enable](/images/2-guardduty-enable.png?featherlight=false&width=90pc)
 
 ---
 
-**Chuẩn bị tài nguyên với AWS CloudFormation**
+**ត្រៀមធនធានជាមួយ AWS CloudFormation**
 
-1. Đăng nhập vào AWS Console, truy cập vào dịch vụ [CloudFormation](https://us-west-2.console.aws.amazon.com/cloudformation/home)
-2. Tiến hành tạo một Stack mới bằng việc nhấn nút `Create Stack`.
-3. Ở trang `Specify template`, 
-- Tải template tại [đây](https://github.com/AWS-First-Cloud-Journey/GuardDuty-Hands-On/archive/refs/heads/main.zip)
-- Tiến hành tải lên Temlate có sẵn bằng cách dùng nút `Upload a template file`.
-4. Ở trang `Parameters`, chúng ta sẽ nhập một số thông tin bắt buộc sau:
-   1. `EmailAddress`: Tài khoản Email cá nhân để có thể nhận thông báo.
+1. ចូលទៅក្នុង AWS Console, ចូលទៅកាន់សេវាកម្ម [CloudFormation](https://us-west-2.console.aws.amazon.com/cloudformation/home)
+2. បង្កើត Stack ថ្មីដោយចុចប៊ូតុង `Create Stack`។
+3. នៅទំព័រ `Specify template`,
+- ទាញយក template នៅ [ទីនេះ](https://github.com/AWS-First-Cloud-Journey/GuardDuty-Hands-On/archive/refs/heads/main.zip)
+- ផ្ទុកឡើង Template ដែលមានស្រាប់ដោយប្រើប៊ូតុង `Upload a template file`។
+4. នៅទំព័រ `Parameters`, យើងនឹងបញ្ចូលព័ត៌មានចាំបាច់មួយចំនួន៖
+   1. `EmailAddress`: អាសយដ្ឋានអ៊ីមែលផ្ទាល់ខ្លួនដើម្បីទទួលបានការជូនដំណឹង។
 
 ![cloudformation-stack-specify-parameters](/images/2-cloudformation-stack-specify-parameters.png?featherlight=false&width=90pc)
 
-5. Ở trang `Specify Stack Details`, chọn nút `Next`.
-6. Ở trang `Configure stack options`, chọn nút `Next`.
-7. Ở trang `Capabilities`, tiến hành chấp nhận (Acknowledge) cho phép Template tạo các IAM role, cuối cùng chọn nút `Create Stack`.
+5. នៅទំព័រ `Specify Stack Details`, ជ្រើសរើសប៊ូតុង `Next`។
+6. នៅទំព័រ `Configure stack options`, ជ្រើសរើសប៊ូតុង `Next`។
+7. នៅទំព័រ `Capabilities`, យល់ព្រម (Acknowledge) អនុញ្ញាតឱ្យ Template បង្កើត IAM roles, ហើយចុងក្រោយជ្រើសរើសប៊ូតុង `Create Stack`។
 
 ![cloudformation-stack-create-complete](/images/2-cloudformation-stack-create-complete.png?featherlight=false&width=90pc)
-
-{{% notice note %}}
-Quá trình trên sẽ diễn ra trong vòng 5-10 phút cho tới khi chúng ta thấy được trạng thái của Stack là `CREATE_COMPLETE`. Sau đó, chúng ta sẽ nhận được một thông báo qua Email với chủ đề tương tự `AWS Notification - Subscription Confirmation`.
-{{% /notice %}}
 
 ![sns-notification-subscription-confirmation](/images/2-sns-notification-subscription-confirmation.png?featherlight=false&width=90pc)
 
 ![sns-notification-subscription-confirmation](/images/2-sns-notification-subscription-confirmation1.png?featherlight=false&width=90pc)
 
-Những kết quả ban đầu sẽ bắt đầu hiển thị sau 10 phút kể từ thời điểm thiết lập CloudFormation Stack hoàn thành.
+លទ្ធផលដំបូងនឹងចាប់ផ្តើមបង្ហាញក្នុងរយៈពេល 10 នាទីបន្ទាប់ពីការដំឡើង CloudFormation Stack បានបញ្ចប់។
 
-#### Tài nguyên AWS được chuẩn bị?
+#### ធនធាន AWS ដែលត្រូវត្រៀម?
 
-**CloudFormation Template** sẽ chuẩn bị cho chúng ta các tài nguyên sau:
+**CloudFormation Template** នឹងត្រៀមធនធានខាងក្រោមសម្រាប់យើង៖
 
-1. Dịch vụ EC2:
-   - 2 instances với tên gọi là `Compromised Instance`.
-   - 1 instance với tên gọi là `Malicious Instance`.
-2. Dịch vụ IAM:
-   - 1 **IAM Role** dành cho EC2 instance với quyền hạn truy cập đến **SSM Parameter Store** và **DynamoDB**.
-3. Dịch vụ SNS:
-   - 1 **SNS Topic** gửi thông báo qua E-mail.
-4. Dịch vụ EventBridge:
-   - 3 **EventBridge Events Rules** cho việc kích hoạt các thông báo và quá trình khắc phục.
-5. Dịch vụ Lambda:
-   - 2 **Lambda Functions** tiến hành khắc phục các lỗ hổng.  
-6. Dịch vụ SSM:
-   - 1 **SSM Parameter Store** dùng để chứa mật khẩu cho môi trường *TESTING*.
+1. សេវាកម្ម EC2៖
+   - 2 instances ដែលមានឈ្មោះថា `Compromised Instance`។
+   - 1 instance ដែលមានឈ្មោះថា `Malicious Instance`។
+2. សេវាកម្ម IAM៖
+   - 1 **IAM Role** សម្រាប់ EC2 instance ជាមួយនឹងសិទ្ធិចូលប្រើប្រាស់ **SSM Parameter Store** និង **DynamoDB**។
+3. សេវាកម្ម SNS៖
+   - 1 **SNS Topic** សម្រាប់ផ្ញើការជូនដំណឹងតាមរយៈអ៊ីមែល។
+4. សេវាកម្ម EventBridge៖
+   - 3 **EventBridge Events Rules** សម្រាប់ដំណើរការការជូនដំណឹងនិងដំណោះស្រាយ។
+5. សេវាកម្ម Lambda៖
+   - 2 **Lambda Functions** សម្រាប់ដំណោះស្រាយភាពងាយរងគ្រោះ។
+6. សេវាកម្ម SSM៖
+   - 1 **SSM Parameter Store** សម្រាប់រក្សាទុកពាក្យសម្ងាត់សម្រាប់បរិយាកាស *TESTING*។

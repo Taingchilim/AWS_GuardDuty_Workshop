@@ -6,106 +6,111 @@ chapter : false
 pre : " <b> 4. </b> "
 ---
 
-**Tình huống 1: Compromised EC2 Instance**
+**ករណីទី១៖ ម៉ាស៊ីន EC2 ត្រូវបានគ្រប់គ្រង**
 
-Như thường lệ, bạn đến văn phòng sớm vào sáng Thứ 2, chuẩn bị một tách cà phê, ngồi vào chỗ và mở laptop, bắt đầu một chuỗi những tác vụ thường nhật như gửi E-mail, viết kế hoạch. Đột nhiên, bạn bắt đầu nhận một chuỗi những E-mails với nội dung liên quan đến sự phát hiện mới nhất đối với các mối nguy hại, điều mà bạn chưa từng thấy trước đây, tuy nhiên bạn bắt đầu tìm hiểu và điều tra ngay lập tức. Điều đáng mừng là đồng nghiệp của bạn, Alice đã thiết lập những phản ứng tự động dành cho những Findings ấy thế nên chúng đã được giải quyết tức.
+ដូចធម្មតា អ្នកមកការិយាល័យមុនម៉ោងនៅព្រឹកថ្ងៃច័ន្ទ រៀបចំកាហ្វេមួយពែង អង្គុយនៅកន្លែងរបស់អ្នក បើកកុំព្យូទ័រយួរដៃ ហើយចាប់ផ្តើមកិច្ចការប្រចាំថ្ងៃដូចជាផ្ញើអ៊ីមែល និងសរសេរផែនការ។ ភ្លាមៗនោះ អ្នកចាប់ផ្តើមទទួលបានអ៊ីមែលជាបន្តបន្ទាប់ដែលមានខ្លឹមសារទាក់ទងនឹងការរកឃើញថ្មីៗចំពោះគ្រោះថ្នាក់ដែលអ្នកមិនធ្លាប់ឃើញពីមុនមក។ ប៉ុន្តែអ្នកចាប់ផ្តើមស៊ើបអង្កេតភ្លាមៗ។ អ្វីដែលល្អនោះគឺមិត្តរួមការងាររបស់អ្នក Alice បានរៀបចំប្រតិកម្មស្វ័យប្រវត្តិសម្រាប់ការរកឃើញទាំងនោះ ដូច្នេះវាត្រូវបានដោះស្រាយភ្លាមៗ។
 
-Nội dung E-mail đầu tiên mà bạn được nhận được với việc EC2 instance của bạn có thể đã bị xâm nhập như sau:
+អ៊ីមែលដំបូងដែលអ្នកទទួលបានទាក់ទងនឹងម៉ាស៊ីន EC2 របស់អ្នកដែលអាចត្រូវបានគ្រប់គ្រងមានដូចខាងក្រោម៖
 
 ```text
 GuardDuty Finding | ID: 1xx: The EC2 instance i-xxxxxxxxx may be compromised and should be investigated
 ```
 
-Nội dung E-mail thứ hai ngay sau đó mà bạn nhận được với tình hình đã được giải quyết tức thì như sau:
+អ៊ីមែលទីពីរដែលអ្នកទទួលបានភ្លាមៗបន្ទាប់ពីនោះដែលស្ថានភាពត្រូវបានដោះស្រាយភ្លាមៗមានដូចខាងក្រោម៖
 
 ```text
 GuardDuty Remediation | ID: 1xx: GuardDuty discovered an EC2 instance (Instance ID: i-xxx) that is communicating outbound with an IP Address on a threat list that you uploaded. All security groups have been removed and it has been isolated. Please follow up with any additional remediation actions.
 ```
 
-**Nội dung**
-- [Kiến trúc tổng quan](#kiến-trúc-tổng-quan)
-- [Quá Trình Điều tra](#quá-trình-điều-tra)
-- [Câu Hỏi Ôn Tập](#câu-hỏi-ôn-tập)
+**មាតិកា**
+- [ទិដ្ឋភាពទូទៅនៃស្ថាបត្យកម្ម](#ទិដ្ឋភាពទូទៅនៃស្ថាបត្យកម្ម)
+- [ដំណើរការស៊ើបអង្កេត](#ដំណើរការស៊ើបអង្កេត)
+- [សំណួររំលឹក](#សំណួររំលឹក)
 
-#### Kiến trúc tổng quan
+#### ទិដ្ឋភាពទូទៅនៃស្ថាបត្យកម្ម
 ![architecture-overview](/images/4-architecture-overview.png?featherlight=false&width=60pc)
 
-1. Một *EC2 compromised instance*, tiến hành gửi gói tin pings đến địa chỉ EIP của một EC2 instance nguy hại. Địa chỉ EIP đó đã được thêm ở **Custom Threat List**.
-2. GuardDuty tiến hành theo dõi VPC Flow Logs (kể cả CloudTrail và DNS Logs) và phân tích tình hình dựa trên Machine Learning, **Custom Threat List** và một số cở sở khác.
-3. GuardDuty sinh ra một Finding và hiển thị trên GuardDuty Console và gửi sự kiện này đến EventBridge Events.
-4. Dựa trên sự kiện này, EventBridge Event Rule tiến hành phản ứng và kích hoạt đồng thời SNS Topic và Lambda Function tương ứng.
-5. SNS Topic sẽ gửi E-mail cùng với chi tiết Finding cho bạn.
-6. Lambda Function sẽ tiến hành cô lập *EC2 compromised instance*.
+1. *ម៉ាស៊ីន EC2 ដែលត្រូវបានគ្រប់គ្រង* បញ្ជូនកញ្ចប់ ping ទៅកាន់អាសយដ្ឋាន EIP របស់ម៉ាស៊ីន EC2 គ្រោះថ្នាក់។ អាសយដ្ឋាន EIP នោះត្រូវបានបន្ថែមនៅក្នុង **បញ្ជីគំរាមកំហែងផ្ទាល់ខ្លួន**។
 
-Khi Alice thiết lập thông báo E-mail cho sự kiện này, cô ấy chỉ thêm một vài thông tin nhất định về Finding ấy và cấu hình Lambda Function để tự động cô lập *EC2 compromised instance*. Mặc dù Finding đã được giải quyết, bạn vẫn quyết định tìm hiểu chi tiết hơn về các thiết lập và cấu hình hiện tại này của Alice.
+2. GuardDuty តាមដានកំណត់ហេតុ VPC Flow (រួមទាំងកំណត់ហេតុ CloudTrail និង DNS) និងវិភាគស្ថានភាពដោយផ្អែកលើការរៀនម៉ាស៊ីន **បញ្ជីគំរាមកំហែងផ្ទាល់ខ្លួន** និងមូលដ្ឋានផ្សេងទៀត។
 
-#### Quá Trình Điều tra
+3. GuardDuty បង្កើតការរកឃើញនិងបង្ហាញនៅលើកុងសូល GuardDuty និងផ្ញើព្រឹត្តិការណ៍នេះទៅ EventBridge Events។
+
+4. ដោយផ្អែកលើព្រឹត្តិការណ៍នេះ វិធាន EventBridge Event ធ្វើប្រតិកម្មនិងជំរុញទាំង SNS Topic និងមុខងារ Lambda ដែលពាក់ព័ន្ធ។
+
+5. SNS Topic នឹងផ្ញើអ៊ីមែលជាមួយនឹងព័ត៌មានលម្អិតអំពីការរកឃើញដល់អ្នក។
+
+6. មុខងារ Lambda នឹងដាក់ដាច់ដោយឡែក *ម៉ាស៊ីន EC2 ដែលត្រូវបានគ្រប់គ្រង*។
+
+នៅពេល Alice រៀបចំការជូនដំណឹងតាមអ៊ីមែលសម្រាប់ព្រឹត្តិការណ៍នេះ នាងគ្រាន់តែបន្ថែមព័ត៌មានជាក់លាក់មួយចំនួនអំពីការរកឃើញនោះ និងកំណត់រចនាសម្ព័ន្ធមុខងារ Lambda ដើម្បីដាក់ដាច់ដោយស្វ័យប្រវត្តិនូវ *ម៉ាស៊ីន EC2 ដែលត្រូវបានគ្រប់គ្រង*។ ទោះបីជាការរកឃើញត្រូវបានដោះស្រាយក៏ដោយ អ្នកនៅតែសម្រេចចិត្តស្វែងយល់បន្ថែមអំពីការរៀបចំនិងការកំណត់រចនាសម្ព័ន្ធបច្ចុប្បន្នរបស់ Alice។
+
+
+#### ដំណើរការស៊ើបអង្កេត
 
 ---
 
-**Truy cập GuardDuty Console**
+**ការចូលប្រើប្រាស់ GuardDuty Console**
 
-Mặc dù bạn có thể thấy các Findings này từ GuardDuty Console, đa số các khách hàng đều muốn tập hợp chúng, từ các AWS Regions và AWS Accounts, đến một hệ thống quản lý dữ liệu bảo mật tập trung (**SIEM**) để tiến hành phân tích và thực hiện quá trình Remediations. Cách tiếp cận thông dụng nhất là cấu hình GuardDuty dưới một mô hình `Admin/Member` và sử dụng quy trình kết hợp giữa EventBridge Event Rules và Lambda Function để tiến hành đẩy những Findings này tới **SIEM** hoặc một **Centralized Logging Framework**. Ngoài ra còn có một số giải pháp đến từ các đối tác của AWS, giúp khách hàng thực hiện các tác vụ hợp nhất và đẩy dữ liệu dễ dàng nhất.
-1. Truy cập vào GuardDuty Console ở **us-west-2**
-2. Chúng ta sẽ thấy được một Finding với định dạng như sau `UnauthorizedAccess:EC2/MaliciousIPCaller.Custom`.
+ទោះបីជាអ្នកអាចមើលឃើញ Findings ទាំងនេះពី GuardDuty Console ក៏ដោយ អតិថិជនភាគច្រើនចង់ប្រមូលផ្តុំពួកវាពី AWS Regions និង AWS Accounts ទៅក្នុងប្រព័ន្ធគ្រប់គ្រងទិន្នន័យសន្តិសុខកណ្តាល (**SIEM**) ដើម្បីធ្វើការវិភាគ និងអនុវត្តដំណើរការ Remediations។ វិធីសាស្រ្តដែលពេញនិយមបំផុតគឺការកំណត់រចនាសម្ព័ន្ធ GuardDuty ក្រោមគំរូ `Admin/Member` និងប្រើប្រាស់ដំណើរការរួមបញ្ចូលគ្នារវាង EventBridge Event Rules និង Lambda Function ដើម្បីបញ្ជូន Findings ទាំងនេះទៅកាន់ **SIEM** ឬ **Centralized Logging Framework**។ លើសពីនេះទៅទៀត មានដំណោះស្រាយមួយចំនួនមកពីដៃគូរបស់ AWS ដែលជួយឱ្យអតិថិជនអនុវត្តការបញ្ចូលគ្នា និងការបញ្ជូនទិន្នន័យបានយ៉ាងងាយស្រួលបំផុត។
+
+1. ចូលទៅកាន់ GuardDuty Console នៅ **us-west-2**
+2. យើងនឹងឃើញ Finding មួយដែលមានទម្រង់ដូចខាងក្រោម `UnauthorizedAccess:EC2/MaliciousIPCaller.Custom`។
 
 ![findings-ec2-malicous-ip-caller](/images/4-findings-ec2-malicous-ip-caller.png?featherlight=false&width=90pc)
 
-3. Nếu không có bất kỳ Finding nào, tiến hành nhấn nút Refresh và đợi.
+3. ប្រសិនបើគ្មាន Finding ណាមួយទេ សូមចុចប៊ូតុង Refresh និងរង់ចាំ។
 
-> Người dùng có thể truy xuất các Findings ở GuardDuty console trong vòng 90 ngày.
+> អ្នកប្រើប្រាស់អាចទាញយក Findings ពី GuardDuty console ក្នុងរយៈពេល 90 ថ្ងៃ។
 
-> Dựa trên định dạng đã được xem xét chi tiết ở phần trước, bạn có thể xác định chính xác sự cố bảo mật nào thông qua kiểu Finding?
-1. Trong môi trường của bạn, kiểu Finding này chỉ ra rằng một EC2 instance đang thực hiện quá trình giao tiếp tới địa chỉ IP (đã được thêm vào **Threat Lists**).
-2. Tiến hành chọn **Lists** ở thanh điều hướng (bên tay trái) để có thể xem **Threat List** mà Alice đã thêm trước đây - `Example-Threat-List`.
+> ផ្អែកលើទម្រង់ដែលបានពិនិត្យលម្អិតនៅផ្នែកមុន តើអ្នកអាចកំណត់បញ្ហាសន្តិសុខជាក់លាក់ណាមួយតាមរយៈប្រភេទ Finding នេះ?
+
+1. នៅក្នុងបរិស្ថានរបស់អ្នក ប្រភេទ Finding នេះបង្ហាញថា EC2 instance កំពុងធ្វើការទំនាក់ទំនងទៅកាន់អាសយដ្ឋាន IP (ដែលត្រូវបានបន្ថែមទៅក្នុង **Threat Lists**)។
+2. ជ្រើសរើស **Lists** នៅលើរបារបញ្ជាការ (ខាងឆ្វេង) ដើម្បីមើល **Threat List** ដែល Alice បានបន្ថែមពីមុន - `Example-Threat-List`។
 
 ![guardduty-lists](/images/4-guardduty-lists.png?featherlight=false&width=90pc)
 
-> GuardDuty sử dụng những hệ thống Threat Intelligence được cung cấp bởi đội ngũ AWS Security và bên thứ 3 như *ProofPoint* và *CrowdStike*. Bạn có thể mở rộng tầm quan sát của GuardDuty bằng cách tự cấu hình danh sách IP đáng tin cậy (**Trusted IP Lists**) và danh sách các mối nguy hại (**Threat Lists**). Nếu bạn đã thiết lập GuardDuty theo cấu trúc Admin/Member, từ tài khoản GuardDuty Admin, bạn có thể quản lý các danh sách trên và để các tài khoản Members kế thừa. Mặc nhiên, các tài khoản Members sẽ không quyền chỉnh sửa các danh sách này.
-
-{{% notice note %}}
-Trong tình huống giả lập này, *EC2 compromised instance* chỉ tiến hành truy cập đến **EIP** của một EC2 instance khác trong cùng VPC nhằm nội bộ hoá quá trình giả lập cùng luồng xử lý dữ liệu chỉ xảy ra trong môi trường của bạn. CloudFormation Template sẽ tự động tạo danh sách mối nguy hại (**Threat Lists**) và gán địa chỉ **EIP** này vào đó.
-{{% /notice %}}
+> GuardDuty ប្រើប្រាស់ប្រព័ន្ធ Threat Intelligence ដែលផ្តល់ដោយក្រុម AWS Security និងភាគីទីបី ដូចជា *ProofPoint* និង *CrowdStike*។ អ្នកអាចពង្រីកការមើលឃើញរបស់ GuardDuty ដោយការកំណត់រចនាសម្ព័ន្ធបញ្ជី IP ដែលទុកចិត្តបាន (**Trusted IP Lists**) និងបញ្ជីគំរាមកំហែង (**Threat Lists**) ដោយខ្លួនឯង។ ប្រសិនបើអ្នកបានរៀបចំ GuardDuty តាមរចនាសម្ព័ន្ធ Admin/Member ពីគណនី GuardDuty Admin អ្នកអាចគ្រប់គ្រងបញ្ជីខាងលើ និងអនុញ្ញាតឱ្យគណនី Members ទទួលបានការកំណត់ទាំងនោះ។ ជាលំនាំដើម គណនី Members នឹងមិនមានសិទ្ធិកែប្រែបញ្ជីទាំងនេះទេ។
 
 ---
 
-**Kiểm tra EventBridge Event Rule**
+**ពិនិត្យមើល EventBridge Event Rule**
 
-Alice sử dụng EventBridge Event Rules để gửi thông báo đến bạn về các Findings cùng với nội dung các bước của quá trình Remediations. Chúng ta sẽ tiến hành khảo sát chi tiết hơn để hiểu rõ Alice đã thiết lập những gì và quá trình này diễn ra như thế nào?
-1. Truy cập vào EventBridge Console ở **us-west-2**.
-2. Ở thanh điều hướng bên tay trái, dưới **Events**, chọn **Rules**. Bạn sẽ thấy có 3 quy tắc đã được thiết lập (bởi CloudFormation Template), bắt đầu với tiền tố có dạng sau `GuardDuty-Event`.
+Alice ប្រើប្រាស់ EventBridge Event Rules ដើម្បីផ្ញើការជូនដំណឹងអំពី Findings និងជំហានក្នុងដំណើរការ Remediations។ យើងនឹងពិនិត្យមើលលម្អិតថាតើ Alice បានរៀបចំអ្វីខ្លះ និងរបៀបដែលដំណើរការនេះដំណើរការ។
+
+1. ចូលទៅកាន់ EventBridge Console នៅក្នុង **us-west-2**
+2. នៅក្នុងរបារនាំផ្លូវខាងឆ្វេង ក្រោម **Events** ជ្រើសរើស **Rules**។ អ្នកនឹងឃើញច្បាប់ចំនួន 3 ដែលត្រូវបានបង្កើត (ដោយ CloudFormation Template) ដែលចាប់ផ្តើមដោយបុព្វបទ `GuardDuty-Event`។
 
 ![eventbridge-events-rules](/images/4-eventbridge-events-rules.png?featherlight=false&width=90pc)
 
-3. Tiến hành chọn quy tắc có tên là `GuardDuty-Event-EC2-MaliciousIPCaller`.
+3. ជ្រើសរើសច្បាប់ដែលមានឈ្មោះ `GuardDuty-Event-EC2-MaliciousIPCaller`។
 
 ![eventbridge-event-ec2-malicious-ip-caller](/images/4-eventbridge-event-ec2-malicious-ip-caller.png?featherlight=false&width=90pc)
 
-4. Bạn sẽ dễ dàng nhận thấy có 2 mục tiêu tại vùng **Targets**.
+4. អ្នកនឹងឃើញគោលដៅចំនួន 2 នៅក្នុងផ្នែក **Targets**។
    1. **Lambda Function**
-   2. **SNS Topic**: Tiến hành gửi thông báo E-mail cho bạn dựa trên dữ liệu được cung cấp bởi EventBridge Event Rule. Thay vì toàn bộ dữ liệu JSON được sử dụng, bằng việc sử dụng **Input Transformer**, Alice đã tuỳ chỉnh nội dung thông báo.
+   2. **SNS Topic**: ផ្ញើការជូនដំណឹងតាមអ៊ីមែលទៅអ្នកដោយផ្អែកលើទិន្នន័យដែលផ្តល់ដោយ EventBridge Event Rule។ ជំនួសឱ្យការប្រើទិន្នន័យ JSON ទាំងអស់ Alice បានប្តូរខ្លឹមសារនៃការជូនដំណឹងដោយប្រើ **Input Transformer**។
 
 ![eventbridge-event-ec2-malicious-ip-caller-targets](/images/4-eventbridge-event-ec2-malicious-ip-caller-targets.png?featherlight=false&width=90pc)
 
 ---
 
-**Kiểm tra quá trình Remediation dựa trên Lambda Function**
+**ពិនិត្យមើលដំណើរការ Remediation ដែលផ្អែកលើ Lambda Function**
 
-Lambda Function là chìa khoá nắm giữ logic nhằm thực hiện các bước của quá trình Remediations dành cho các Findings. Alice đã thiết lập Lambda Function nhằm loại bỏ và thay thế **Security Group** của *EC2 compromised instance* bằng một **Security Group** không chứa bất kỳ một quy tắc `Ingress/Egress` nào. Điều này sẽ giúp cô lập *EC2 compromised instance* ra khỏi hệ thống mạng hiện tại.
+Lambda Function គឺជាគន្លឹះដែលមានតក្កវិជ្ជាសម្រាប់អនុវត្តជំហាននៃដំណើរការ Remediations សម្រាប់ Findings។ Alice បានរៀបចំ Lambda Function ដើម្បីដកចេញ និងជំនួស **Security Group** នៃ *EC2 compromised instance* ដោយ **Security Group** ថ្មីដែលគ្មានច្បាប់ `Ingress/Egress` ណាមួយ។ នេះនឹងជួយដាច់ *EC2 compromised instance* ចេញពីបណ្តាញបច្ចុប្បន្ន។
 
-Để tiến hành kiểm tra quá trình Remediation:
-1. Từ quy tắc `GuardDuty-Event-EC2-MaliciousIPCaller`, tại vùng **Targets**, ở mục **Type** là Lambda Function, chúng ta tìm kiếm **Resource Name** tương ứng.
+ដើម្បីពិនិត្យមើលដំណើរការ Remediation:
+1. ពីច្បាប់ `GuardDuty-Event-EC2-MaliciousIPCaller` នៅក្នុងផ្នែក **Targets** ក្នុងប្រភេទ Lambda Function រកមើល **Resource Name** ដែលត្រូវគ្នា។
 
 ![eventbridge-event-ec2-malicious-ip-caller-targets-lambda](/images/4-eventbridge-event-ec2-malicious-ip-caller-targets-lambda.png?featherlight=false&width=90pc)
 
-2. Tại Lambda Function console, tìm kiếm **Resource Name** theo bước trước.
+2. នៅក្នុង Lambda Function console ស្វែងរក **Resource Name** ពីជំហានមុន។
 
 ![lambda-Remediation-EC2MaliciousIPCaller](/images/4-lambda-Remediation-EC2MaliciousIPCaller.png?featherlight=false&width=90pc)
 
-3. Chúng ta có thể xem xét một số mục
+3. យើងអាចពិនិត្យមើលផ្នែកមួយចំនួន
    1. Configuration
-      1. Tại thanh **Designer**, chúng ta sẽ dễ dàng thấy mối quan hệ với EventBridge Event Rule.
-      2. Ở phần **Function code**, những logic về coding sẽ được thực thi tại đây.
+      1. នៅក្នុងរបារ **Designer** យើងនឹងឃើញទំនាក់ទំនងជាមួយ EventBridge Event Rule។
+      2. នៅក្នុងផ្នែក **Function code** តក្កវិជ្ជាកូដនឹងត្រូវបានប្រតិបត្តិនៅទីនេះ។
    2. Permissions
    3. Monitoring
 
@@ -113,26 +118,27 @@ Lambda Function là chìa khoá nắm giữ logic nhằm thực hiện các bư�
 
 ---
 
-**Xác nhận quá trình Remediation đã thành công**
+**បញ្ជាក់ថាដំណើរការ Remediation បានជោគជ័យ**
 
-Để đảm bảo kết quả của quá trình Remediation, chúng ta cần phải xem xét EC2 instance đã bị cô lập hay chưa. Tại thời điểm này, bạn đã nhận được một E-mail cùng với một số thông tin quan trọng.
-1. Truy cập vào EC2 console ở **us-west-2**.
-2. Chọn `Instances (Running)`, chúng sẽ thấy được 3 EC2 instance với tiền tố bắt đầu với định dạng sau `GuardDuty-Example`.
+ដើម្បីធានាថាលទ្ធផលនៃដំណើរការ Remediation យើងត្រូវពិនិត្យមើលថាតើ EC2 instance ត្រូវបានដាច់ដោយឡែកហើយឬនៅ។ នៅពេលនេះ អ្នកគួរតែបានទទួលអ៊ីមែលជាមួយនឹងព័ត៌មានសំខាន់មួយចំនួន។
+
+1. ចូលទៅកាន់ EC2 console នៅក្នុង **us-west-2**។
+2. ជ្រើសរើស `Instances (Running)` អ្នកនឹងឃើញ EC2 instance ចំនួន 3 ដែលចាប់ផ្តើមដោយបុព្វបទ `GuardDuty-Example`។
 
 ![ec2-running](/images/4-ec2-running.png?width=90pc)
 
-3. Dựa trên instance ID có từ GuardDuty Finding hay thông báo E-mail, chúng ta chọn EC2 instance tương ứng - `GuardDuty-Example: Compromised Instance: Scenario 1`.
+3. ដោយផ្អែកលើ instance ID ពី GuardDuty Finding ឬការជូនដំណឹងតាមអ៊ីមែល យើងជ្រើសរើស EC2 instance ដែលត្រូវគ្នា - `GuardDuty-Example: Compromised Instance: Scenario 1`។
 
 ![guardduty-finding-MaliciousIPCaller-target](/images/4-guardduty-finding-MaliciousIPCaller-target.png?featherlight=false&width=90pc)
 
 ![ec2-compromised-scenario-1](/images/4-ec2-compromised-scenario-1.png?featherlight=false&width=90pc)
 
-4. Sau khi quá trình Remediation hoàn thành, chúng ta sẽ kiểm tra **Security Group** của *EC2 compromised instance* này, sẽ có định dạng tên tương tự sau `ForensicSecurityGroup`.
-5. `ForensicSecurityGroup` sẽ không có bất kỳ một quy tắc `Ingress/Egress` nào chứa địa chỉ IP trong `Example-Threat-List`.
+4. បន្ទាប់ពីដំណើរការ Remediation បានបញ្ចប់ យើងនឹងពិនិត្យមើល **Security Group** នៃ *EC2 compromised instance* នេះ ដែលនឹងមានឈ្មោះដូច `ForensicSecurityGroup`។
+5. `ForensicSecurityGroup` នឹងគ្មានច្បាប់ `Ingress/Egress` ណាមួយដែលមាន IP address នៅក្នុង `Example-Threat-List`។
 
 ![ec2-compromised-scenario-1-security-group](/images/4-ec2-compromised-scenario-1-security-group.png?featherlight=false&width=90pc)
 
-#### Câu Hỏi Ôn Tập
-1. Nguồn dữ liệu nào đã được GuardDuty sử dụng để xác định mối nguy hại này?
-2. Liệu việc cô lập có làm ảnh hưởng đến các ứng dụng đang vận hành bên trong EC2 instance này?
-3. Làm cách nào để chúng ta có thể thêm các thông tin chi tiết hơn ở các thông báo E-mail?
+#### សំណួររំលឹក
+1. តើប្រភពទិន្នន័យណាដែល GuardDuty បានប្រើដើម្បីកំណត់អត្តសញ្ញាណការគំរាមកំហែងនេះ?
+2. តើការដាច់ដោយឡែកប៉ះពាល់ដល់កម្មវិធីដែលកំពុងដំណើរការនៅក្នុង EC2 instance នេះដែរឬទេ?
+3. តើយើងអាចបន្ថែមព័ត៌មានលម្អិតបន្ថែមទៅក្នុងការជូនដំណឹងតាមអ៊ីមែលដោយរបៀបណា?

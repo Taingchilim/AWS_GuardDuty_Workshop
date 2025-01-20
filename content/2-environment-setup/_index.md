@@ -8,9 +8,6 @@ pre : " <b> 2. </b> "
 
 #### Preparation
 
-{{% notice note %}}
-The exercise will be set at **us-west-2 (Oregon)**.
-{{% /notice %}}
 
 **Contents**
 - [Preparation](#preparation)
@@ -57,10 +54,6 @@ The exercise will be set at **us-west-2 (Oregon)**.
 7. On the `Capabilities` page, proceed to accept (Acknowledge) to allow the Template to create IAM roles, and finally select the `Create Stack` button.
 
 ![cloudformation-stack-create-complete](/images/2-cloudformation-stack-create-complete.png?featherlight=false&width=90pc)
-
-{{% notice note %}}
-The above process will take 5-10 minutes until we see the status of the Stack as `CREATE_COMPLETE`. We will receive an email notification with the same subject as `AWS Notification - Subscription Confirmation`.
-{{% /notice %}}
 
 ![sns-notification-subscription-confirmation](/images/2-sns-notification-subscription-confirmation.png?featherlight=false&width=90pc)
 

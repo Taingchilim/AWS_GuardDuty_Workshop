@@ -14,18 +14,6 @@
                 href="/vi/1-intro/"
                 />
   </url><url>
-    <loc>/vi/</loc>
-    <xhtml:link
-                rel="alternate"
-                hreflang="en"
-                href="/"
-                />
-    <xhtml:link
-                rel="alternate"
-                hreflang="vi"
-                href="/vi/"
-                />
-  </url><url>
     <loc>/vi/6-iam-role-credential-exfiltration/1-create-findings/</loc>
     <xhtml:link
                 rel="alternate"
@@ -132,6 +120,19 @@
                 rel="alternate"
                 hreflang="vi"
                 href="/vi/8-environment-cleanup/"
+                />
+  </url><url>
+    <loc>/vi/</loc>
+    <priority>0</priority>
+    <xhtml:link
+                rel="alternate"
+                hreflang="en"
+                href="/"
+                />
+    <xhtml:link
+                rel="alternate"
+                hreflang="vi"
+                href="/vi/"
                 />
   </url><url>
     <loc>/vi/categories/</loc>

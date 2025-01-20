@@ -1,76 +1,52 @@
 ---
-title : "Về GuardDuty"
+title : "អំពី GuardDuty"
 date :  "`r Sys.Date()`" 
 weight : 3
 chapter : false
 pre : " <b> 3. </b> "
 ---
 
-**Nội dung**
-- [Nguồn Dữ liệu](#nguồn-dữ-liệu)
-- [Findings](#findings)
+**មាតិកា**
+- [ប្រភពទិន្នន័យ](#ប្រភពទិន្នន័យ)
+- [ការរកឃើញ](#ការរកឃើញ)
 
-#### Nguồn Dữ liệu
-Kể từ khi được kích hoạt trong một AWS Region, GuardDuty tiến hành phân tích mọi dữ liệu đến từ:
+#### ប្រភពទិន្នន័យ
+ចាប់តាំងពីត្រូវបានបើកដំណើរការនៅក្នុង AWS Region មួយ GuardDuty ធ្វើការវិភាគរាល់ទិន្នន័យដែលមកពី៖
 1. VPC Flow Logs
-2. CloudTrail Logs
+2. CloudTrail Logs  
 3. DNS Logs
-   - Nhật ký lưu trữ của DNS xuất phát từ các DNS resolvers (sở hữu bởi AWS) dành cho các VPC và không thể truy xuất trực tiếp từ phía người dùng.
-   - Nếu như DNS resolver được cấu hình độc lập bởi chính bạn hoặc từ phía bên thứ 3, GuardDuty sẽ không thể truy xuất, xử lý và xác định các mối nguy hại từ nguồn dữ liệu này.
+   - កំណត់ហេតុ DNS មកពី DNS resolvers (កម្មសិទ្ធិរបស់ AWS) សម្រាប់ VPCs ហើយមិនអាចចូលប្រើដោយផ្ទាល់ពីអ្នកប្រើប្រាស់បានទេ។
+   - ប្រសិនបើ DNS resolver ត្រូវបានកំណត់រចនាសម្ព័ន្ធដោយឯករាជ្យដោយអ្នក ឬដោយភាគីទីបី GuardDuty នឹងមិនអាចចូលប្រើ ដំណើរការ និងកំណត់ការគំរាមកំហែងពីប្រភពទិន្នន័យនេះបានទេ។
 
-GuardDuty có thể truy xuất đến mọi nguồn dữ liệu (được đề cập ở trên) cho dù chúng chưa được kích hoạt từ trước.
+GuardDuty អាចចូលប្រើប្រភពទិន្នន័យទាំងអស់ (ដែលបានរៀបរាប់ខាងលើ) ទោះបីជាពួកវាមិនទាន់ត្រូវបានបើកដំណើរការពីមុនក៏ដោយ។
 
-{{% notice info %}}
-AWS khuyên bạn nên kích hoạt đồng thời CloudTrail Logs và VPC Flow Logs để có cái nhìn tổng quan và chi tiết nhất khi tiến hành phân tích dữ liệu.
-{{% /notice %}}
+GuardDuty គឺជាសេវាកម្ម **Regional** ដូច្នេះដើម្បីតាមដានទិន្នន័យនៅក្នុង AWS Region មួយ អ្នកត្រូវតែបើកដំណើរការវានៅក្នុង AWS Region នោះ។
 
-GuardDuty là một dịch vụ mang tính chất **Regional**, thế nên để có thể theo dõi dữ liệu ở một AWS Region thì bạn phải kích hoạt ở AWS Region đó.
+ទោះបីជាអ្នកមានធនធាន AWS តិច ឬច្រើន (ដូចជា VPCs ឬ IAM users) GuardDuty នឹងមិនប៉ះពាល់ដល់ធនធានណាមួយទេ ពីព្រោះដំណើរការទាំងអស់នឹងត្រូវបានអនុវត្តផ្ទៃក្នុងនៅក្នុងសេវាកម្ម GuardDuty។
 
-{{% notice info %}}
-Bạn có thể kích hoạt thông qua AWS Console hoặc sử dụng APIs. Đa số người dùng sẽ kích hoạt ở mọi AWS Regions và AWS Accounts một cách đồng thời thông qua APIs.
-{{% /notice %}}
+ការគិតថ្លៃរបស់ GuardDuty គឺផ្អែកលើ៖
+- ចំនួន CloudTrail events ដែលបានវិភាគ
+- បរិមាណនៃ VPC flow logs (គិតជា **GB**)
+- បរិមាណនៃ DNS logs (គិតជា **GB**)
 
-Cho dù bạn có số lượng các tài nguyên AWS ít hay nhiều (ví dụ như VPCs hay IAM users), GuardDuty sẽ không gây bất kỳ ảnh hưởng nào đến bất kỳ tài nguyên nào bởi các quy trình xử lý sẽ chỉ được thực hiện nội bộ bên trong dịch vụ GuardDuty.
+#### ការរកឃើញ
+GuardDuty នឹងសកម្មតាមដាន និងស្វែងរកសញ្ញាមិនប្រក្រតីដែលមកពី៖
+- ប្រភពទិន្នន័យទាំង 3 (ដែលបានរៀបរាប់ខាងលើ)
+- ពី EC2 instances 
+- ពីធនធាន AWS IAM
 
-{{% notice info %}}
-GuardDuty là một dịch vụ được quản lý hoàn toàn bởi AWS.
-{{% /notice %}}
-
-Cách tính giá của GuardDuty sẽ dựa trên
-- Số lượng CloudTrail events được phân tích
-- Khối lượng của VPC floư logs (theo **GB**)
-- Khối lượng của DNS log (theo **GB**)
-
-{{% notice info %}}
-Mỗi tài khoản AWS sẽ có 30 ngày thử nghiệm ở mỗi AWS Region, điều này sẽ giúp GuardDuty dễ dàng dự đoán chi phí phát sinh.
-{{% /notice %}}
-
-#### Findings
-GuardDuty sẽ chủ động quan sát và theo dõi các dấu hiệu bất thường xuất phát
-- Từ 3 nguồn dữ liệu (được đề cập ở trên)
-- Từ các EC2 instances
-- Từ các tài nguyên AWS IAM
-
-Bạn sẽ dễ dàng truy xuất chi tiết các Findings được phát hiện bởi GuardDuty ở thanh **Findings**. Mỗi Finding sẽ được chia nhỏ thành nhiều thông tin theo định dạng mà cho phép chúng ta dễ dàng đọc hiểu và xử lý các nguy cơ về bảo mật. 
+អ្នកអាចចូលមើលព័ត៌មានលម្អិតនៃការរកឃើញដែលត្រូវបានរកឃើញដោយ GuardDuty នៅក្នុងផ្ទាំង **Findings**។ ការរកឃើញនីមួយៗនឹងត្រូវបានបែងចែកជាព័ត៌មានតូចៗតាមទម្រង់ដែលអនុញ្ញាតឱ្យយើងងាយស្រួលអាន និងដោះស្រាយហានិភ័យសន្តិសុខ។
 
 ```
 ThreatPurpose : ResourceTypeAffected / ThreatFamilyName . ThreatFamilyVariant ! Artifact
 ```
 
-{{% notice tip %}}
-Tìm hiểu chi tiết hơn về các thành phần của định dạng trên [tại đây](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-format.html).
-{{% /notice %}}
+សម្រាប់ករណីនិងឥរិយាបថដែលពិបាកទស្សន៍ទាយ ដើម្បីរៀនសូត្រនិងវិភាគភាពមិនប្រក្រតី ម៉ាស៊ីន Machine Learning របស់ GuardDuty នឹងត្រូវការរយៈពេលមូលដ្ឋានពី 7 ទៅ 14 ថ្ងៃ។
 
-Đối với những trường hợp và hành vi có mức độ khó đoán cao, để mà có thể học chúng và phân tích những điểm bất thường, bộ máy Machine Learning của GuardDuty sẽ cần một khoảng thời gian cơ sở từ 7 đến 14 ngày.
+**ឧទាហរណ៍៖**
+1. EC2 instance មួយចាប់ផ្តើមទំនាក់ទំនងជាមួយម៉ាស៊ីនមេពីចម្ងាយតាមរយៈ Port មិនប្រក្រតីមួយ។
+2. IAM user មួយចាប់ផ្តើមផ្លាស់ប្តូរ Route Tables ខណៈពេលដែលមិនធ្លាប់បានធ្វើសកម្មភាពនេះពីមុនមក។
 
-**Ví dụ: **
-1. Một EC2 instance bắt đầu giao tiếp với một máy chủ từ xa thông qua một Port bất thường.
-2. Một IAM user bắt đầu thay đổi Route Tables trong khi trước đó chưa từng thực hiện tác vụ này.
+សម្រាប់ករណីខាងលើ រាល់ការស្វែងរកទាំងអស់នឹងត្រូវបានផ្អែកលើ Signatures ដូច្នេះពួកវានឹងត្រូវបានរកឃើញក្នុងរយៈពេល 10 នាទីបន្ទាប់ពី CloudFormation stack ត្រូវបានបញ្ចប់។ ក្នុងអំឡុងពេលនៃការរកឃើញការគំរាមកំហែង ភាពយឺតយ៉ាវនឹងមានតិច ឬច្រើនអាស្រ័យលើភាពញឹកញាប់នៃការលេចឡើងនៃព័ត៌មានពាក់ព័ន្ធ និងពេលវេលាសរុបដែល GuardDuty អាចចូលប្រើ និងវិភាគព័ត៌មានទាំងនោះនៅប្រភពទិន្នន័យជាក់លាក់។
 
-Đối các truờng hợp trên, mọi tác vụ tìm kiếm đều sẽ được dựa trên các Signatures, vì vậy chúng sẽ được phát hiện trong vòng 10 phút kể từ khi CloudFormation stack được hoàn thành. Trong quá trình phát hiện mối nguy hại, sự chậm trễ sẽ là ít hay nhiều dựa trên tần suất xuất hiện của các thông tin liên quan và tổng thời gian mà GuardDuty có thể truy xuất và phân tích các thông tin ấy tại các nguồn dữ liệu cụ thể.
-
-{{% notice tip %}}
-Tìm hiểu chi tiết hơn về danh sách của toàn bộ các loạt GuardDuty Findings [tại đây](https://docs.aws.amazon.com/guardduty/latest/ug/guardduty_finding-types-active.html)
-{{% /notice %}}
-
-Khi có bất kỳ sự thay đổi nào tại các Findings, dựa trên các thiết lập đến từ Amazon CloudWatch Events, GuardDuty sẽ gửi thông báo đến bạn ngay tức thì trong vòng 5 phút. Mọi sự thay đổi liên quan từ các lần kế tiếp sẽ có cùng ID với Finding gốc và thông báo sẽ được gửi mỗi 6 tiếng tính từ lần gửi đầu tiên, điều này nhằm đối phó với lượng thông báo đến ồ ạt trong cùng một Finding đến người dùng.
+នៅពេលមានការផ្លាស់ប្តូរណាមួយនៅក្នុងការរកឃើញ ផ្អែកលើការកំណត់រចនាសម្ព័ន្ធពី Amazon CloudWatch Events GuardDuty នឹងផ្ញើការជូនដំណឹងទៅអ្នកភ្លាមៗក្នុងរយៈពេល 5 នាទី។ រាល់ការផ្លាស់ប្តូរពាក់ព័ន្ធពីលើកបន្តបន្ទាប់នឹងមាន ID ដូចគ្នាជាមួយនឹងការរកឃើញដើម ហើយការជូនដំណឹងនឹងត្រូវបានផ្ញើរៀងរាល់ 6 ម៉ោងគិតចាប់ពីការផ្ញើលើកដំបូង នេះគឺដើម្បីដោះស្រាយបរិមាណការជូនដំណឹងច្រើនក្នុងការរកឃើញតែមួយទៅកាន់អ្នកប្រើប្រាស់។

@@ -1,120 +1,112 @@
 ---
-title : "Compromised IAM credentials"
+title : "លិខិតស្នាមព័ត៌មាន IAM ដែលត្រូវបានគេប្រើប្រាស់ដោយមិនត្រឹមត្រូវ"
 date :  "`r Sys.Date()`" 
 weight : 5
 chapter : false
 pre : " <b> 5. </b> "
 ---
 
-**Tình huống 2: Compromised IAM credentials**
+**ករណីទី២៖ លិខិតស្នាមព័ត៌មាន IAM ដែលត្រូវបានគេប្រើប្រាស់ដោយមិនត្រឹមត្រូវ**
 
-Bạn đã hoàn thành tình huống giả lập tấn công đầu tiên và quay trở lại với tách cà phê của mình. Tuy nhiên, bạn lại tiếp tục nhận thêm những thông báo mới về những Findings liên quan tới các dịch vụ AWS IAM. Nội dung thông báo đầu tiên chỉ ra rằng, bằng cách sử dụng **IAM credentials**, một số **API calls** đã được thực hiện từ địa chỉ IP đã được thêm vào **Threat List** (ở bài trước).
+អ្នកបានបញ្ចប់ករណីវាយប្រហារសាកល្បងដំបូង ហើយត្រឡប់មកញ៉ាំកាហ្វេរបស់អ្នកវិញ។ ទោះជាយ៉ាងណាក៏ដោយ អ្នកបានទទួលការជូនដំណឹងថ្មីៗទាក់ទងនឹងរកឃើញសេវាកម្ម AWS IAM។ ការជូនដំណឹងដំបូងបង្ហាញថា ដោយប្រើ **លិខិតស្នាម IAM** មាន **API calls** មួយចំនួនត្រូវបានធ្វើឡើងពីអាសយដ្ឋាន IP ដែលត្រូវបានបន្ថែមទៅក្នុង **បញ្ជីការគំរាមកំហែង** (នៅមេរៀនមុន)។
 
-{{% notice note %}}
-Không có bất kỳ **IAM credentials** cá nhân nào đã từng bị phơi bày hay lộ ra dưới bất kỳ hình thức nào.
-{{% /notice %}}
+**មាតិកា**
+- [ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ](#ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ)
+- [ដំណើរការស៊ើបអង្កេត](#ដំណើរការស៊ើបអង្កេត)
+- [សំណួររំលឹក](#សំណួររំលឹក)
 
-**Nội dung**
-- [Kiến Trúc Tổng Quan](#kiến-trúc-tổng-quan)
-- [Quá Trình Điều Tra](#quá-trình-điều-tra)
-- [Cấu Hỏi Ôn Tập](#cấu-hỏi-ôn-tập)
-
-#### Kiến Trúc Tổng Quan
+#### ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ
 ![architecture-overview](/images/5-architecture-overview.png?featherlight=false&width=60pc)
 
-1. *EC2 malicious instance* này tiến hành thực hiện các **API calls**, EIP của instance này đã được thêm vào **Threat List**. Nội dung các **API calls** đã được lưu lại trong nhật ký của CloudTrail.
-2. GuardDuty quan sát nhật ký của **CloudTrail Logs** cùng với **VPC Flow Logs** và **DNS Logs**, qua đó đánh giá tình hình dựa trên một số cơ sở nhất định.
-3. GuardDuty tạo ra những Findings tương ứng và đồng thời gửi chi tiết đến GuardDuty Console và EventBridge Events.
-4. **EventBridge Event Rule** tiến hành kích hoạt **SNS Topic**.
-5. **SNS Topic** tiến hành gửi thông báo E-mail cùng với thông tin liên quan.
+1. *EC2 instance មានគ្រោះថ្នាក់* នេះបានធ្វើ **API calls**, EIP របស់ instance នេះត្រូវបានបន្ថែមទៅក្នុង **បញ្ជីការគំរាមកំហែង**។ ខ្លឹមសារនៃ **API calls** ត្រូវបានរក្សាទុកនៅក្នុង CloudTrail។
+2. GuardDuty តាមដានកំណត់ត្រា **CloudTrail Logs** ជាមួយនឹង **VPC Flow Logs** និង **DNS Logs** ដើម្បីវាយតម្លៃស្ថានភាពដោយផ្អែកលើលក្ខណៈវិនិច្ឆ័យជាក់លាក់។
+3. GuardDuty បង្កើតការរកឃើញដែលត្រូវគ្នា និងផ្ញើព័ត៌មានលម្អិតទៅកាន់ GuardDuty Console និង EventBridge Events។
+4. **EventBridge Event Rule** ដំណើរការ **SNS Topic**។
+5. **SNS Topic** ផ្ញើការជូនដំណឹងតាមអ៊ីមែលជាមួយនឹងព័ត៌មានពាក់ព័ន្ធ។
 
-#### Quá Trình Điều Tra
+#### ដំណើរការស៊ើបអង្កេត
 
 ---
 
-**Truy cập GuardDuty Console**
+**ចូលទៅកាន់ GuardDuty Console**
 
-Để tiến hành xem xét các Findings:
-1. Truy cập vào GuardDuty Console ở **us-west-2**
-2. Chúng ta sẽ thấy được các Findings với định dạng như sau. 
-   1.  `Recon:IAMUser`.
-   2.  `UnauthorizedAccess:IAMUser`.
+ដើម្បីពិនិត្យមើលការរកឃើញ៖
+1. ចូលទៅកាន់ GuardDuty Console នៅ **us-west-2**
+2. យើងនឹងឃើញការរកឃើញដែលមានទម្រង់ដូចខាងក្រោម៖
+   1.  `Recon:IAMUser`
+   2.  `UnauthorizedAccess:IAMUser`
 
 ![guardduty-finding-recon-iamuser](/images/5-guardduty-findings.png?featherlight=false&width=90pc)
 
-3. Nếu không có bất kỳ Finding nào, tiến hành nhấn nút Refresh và đợi.
-4. Từ Finding - `Recon:IAMUser/MaliciousIPCaller.Custom`, chúng ta có thể dễ dàng truy xuất một số thông tin sau:
-   1. Chuyện gì đã xảy ra?
-   2. Tài nguyên AWS nào bị ảnh hưởng?
-   3. Sự kiện này xảy ra khi nào?
-5. Ở dưới phần **Resource Affected**, bạn sẽ kiếm được `User Name` mà liên quan đến Finding này.
+3. បើសិនជាគ្មានការរកឃើញណាមួយ សូមចុចប៊ូតុង Refresh និងរង់ចាំ។
+4. ពីការរកឃើញ - `Recon:IAMUser/MaliciousIPCaller.Custom` យើងអាចទាញយកព័ត៌មានមួយចំនួនដូចខាងក្រោម៖
+   1. តើមានអ្វីកើតឡើង?
+   2. តើធនធាន AWS ណាខ្លះដែលរងផលប៉ះពាល់?
+   3. តើព្រឹត្តិការណ៍នេះកើតឡើងនៅពេលណា?
+5. នៅក្រោមផ្នែក **Resource Affected** អ្នកនឹងរកឃើញ `User Name` ដែលទាក់ទងនឹងការរកឃើញនេះ។
 
 ![guardduty-finding-recon-iamuser-affected-resources](/images/5-guardduty-finding-recon-iamuser-affected-resources.png?featherlight=false&width=90pc)
 
-> Dựa trên định dạng đã được xem xét chi tiết ở phần trước, bạn có thể xác định chính xác sự cố bảo mật nào thông qua kiểu Finding?
+> ដោយផ្អែកលើទម្រង់ដែលបានពិនិត្យយ៉ាងល្អិតល្អន់នៅផ្នែកមុន តើអ្នកអាចកំណត់បញ្ហាសន្តិសុខជាក់លាក់តាមរយៈប្រភេទនៃការរកឃើញបានយ៉ាងដូចម្តេច?
 
-Finding này chỉ ra rằng **IAM credential** của `User Name` trên đã có thể bị phơi bày bởi những **API calls** xuất phát từ địa chỉ IP mà trước đó đã được thêm vào **Threat List**.
+ការរកឃើញនេះបង្ហាញថា **លិខិតស្នាម IAM** របស់ `User Name` ខាងលើប្រហែលជាត្រូវបានបង្ហាញដោយ **API calls** ដែលមកពីអាសយដ្ឋាន IP ដែលត្រូវបានបន្ថែមទៅក្នុង **បញ្ជីការគំរាមកំហែង** ពីមុន។
 
-> Vậy những hành động nào đã được IAM User này thực hiện?
+> តើសកម្មភាពអ្វីខ្លះដែល IAM User នេះបានអនុវត្ត?
 
-Ở mục **Action**, chúng ta thấy được hành động `DescribeParameters` đã được thực hiện.
+នៅក្នុងផ្នែក **Action** យើងឃើញថាសកម្មភាព `DescribeParameters` ត្រូវបានអនុវត្ត។
 
 ![guardduty-finding-recon-iamuser-action](/images/5-guardduty-finding-recon-iamuser-action.png?featherlight=false&width=90pc)
 
-> Làm thế nào để chúng ta có thể thấy được hết các hành động còn lại, được thực hiện bởi IAM User này, trong vòng 1 tiếng trước hay 1 ngày truớc?
+> តើយើងអាចមើលឃើញសកម្មភាពផ្សេងទៀតទាំងអស់ដែលត្រូវបានអនុវត្តដោយ IAM User នេះក្នុងរយៈពេល 1 ម៉ោងមុន ឬ 1 ថ្ងៃមុនដោយរបៀបណា?
 
-GuardDuty có khả năng phân tích một lượng lớn dữ liệu nhằm xác định chính xác mối nguy hiểm có mặt trong môi trường của bạn. Tuy nhiên, trong quá trình điều tra và các bước thực hiện Remediation, chúng ta cũng cần kết hợp nhiều nguồn dữ liệu khác nhau để có một cái nhìn tương quan nhất có thể.
+GuardDuty អាចវិភាគទិន្នន័យយ៉ាងច្រើនដើម្បីកំណត់ការគំរាមកំហែងនៅក្នុងបរិស្ថានរបស់អ្នក។ ទោះយ៉ាងណាក៏ដោយ នៅក្នុងដំណើរការស៊ើបអង្កេត និងជំហានក្នុងការដោះស្រាយ យើងត្រូវរួមបញ្ចូលប្រភពទិន្នន័យផ្សេងៗគ្នាដើម្បីទទួលបានទស្សនៈយ៉ាងទូលំទូលាយបំផុត។
 
-Trong trường hợp này, nhà phân tích có thể sử dụng các thông tin chi tiết có thể tìm thấy trong nhật ký hành vi người dùng thông qua **CloudTrail**.
+ក្នុងករណីនេះ អ្នកវិភាគអាចប្រើប្រាស់ព័ត៌មានលម្អិតដែលអាចរកបាននៅក្នុងកំណត់ត្រាឥរិយាបថអ្នកប្រើប្រាស់តាមរយៈ **CloudTrail**។
 
 ![cloudtrail-event-history](/images/5-cloudtrail-event-history.png?featherlight=false&width=90pc)
 
-{{% notice note %}}
-Những Findings về IAM được sinh ra bởi *EC2 malicious instance* đã thực hiện những **API calls** và EIP của instance này nằm trong **Custom Threat List**.
-{{% /notice %}}
-
 ---
+**ការពិនិត្យមើល EventBridge Event Rule**
 
-**Kiểm tra EventBridge Event Rule**
-
-1. Truy cập vào CloudWatch Console ở **us-west-2**.
-2. Ở thanh điều hướng bên tay trái, dưới **Events**, chọn **Rules**. Bạn sẽ thấy có 3 quy tắc đã được thiết lập (bởi CloudFormation Template), bắt đầu với tiền tố có dạng sau `GuardDuty-Event.`.
-3. Tiến hành chọn quy tắc có tên là `GuardDuty-Event-IAMUser-MaliciousIPCaller`.
+1. ចូលទៅកាន់ CloudWatch Console នៅក្នុង **us-west-2**។
+2. នៅក្នុងរបារនាំផ្លូវខាងឆ្វេង ក្រោម **Events** ជ្រើសរើស **Rules**។ អ្នកនឹងឃើញច្បាប់ចំនួន 3 ដែលត្រូវបានរៀបចំ (ដោយ CloudFormation Template) ដែលចាប់ផ្តើមជាមួយនឹងបុព្វបទដូចខាងក្រោម `GuardDuty-Event.`។
+3. ជ្រើសរើសច្បាប់ដែលមានឈ្មោះ `GuardDuty-Event-IAMUser-MaliciousIPCaller`។
 
 ![eventbridge-event-iam-malicious-ip-caller](/images/5-eventbridge-event-iam-malicious-ip-caller.png?featherlight=false&width=90pc)
 
-4. Bạn sẽ dễ dàng nhận thấy chỉ có 1 mục tiêu tại vùng **Targets** là **SNS Topic**.
+4. អ្នកនឹងឃើញយ៉ាងច្បាស់ថាមានតែគោលដៅមួយនៅក្នុងផ្នែក **Targets** គឺ **SNS Topic**។
 
 ![eventbridge-event-iam-malicious-ip-caller-targets](/images/5-eventbridge-event-iam-malicious-ip-caller-targets.png?featherlight=false&width=90pc)
 
-Hoá ra, Alice chưa từng thiết lập Lambda Function để thực hiện quá trình Remediation bởi đội ngũ Security đã đưa ra quyết định rằng họ sẽ tiến hành một cách thủ công đối với Finding này.
+ពិតណាស់ Alice មិនដែលបានរៀបចំ Lambda Function សម្រាប់ដំណើរការ Remediation ដោយសារក្រុមសន្តិសុខបានសម្រេចចិត្តថាពួកគេនឹងអនុវត្តដោយដៃចំពោះការរកឃើញនេះ។
 
-> Sự kết hợp giữa **GuardDuty và EventBridge Events** mang lại sự uyển chuyển giúp cho chúng ta dễ dàng tạo ra một quy trình Remediation tự động hoá. Lambda function hay giải pháp đến từ phía [đối tác của AWS](https://aws.amazon.com/guardduty/resources/partners/) là những lựa chọn hàng đầu.
+> ការរួមបញ្ចូលគ្នារវាង **GuardDuty និង EventBridge Events** ផ្តល់នូវភាពបត់បែនដែលអនុញ្ញាតឱ្យយើងបង្កើតដំណើរការ Remediation ស្វ័យប្រវត្តិយ៉ាងងាយស្រួល។ Lambda function ឬដំណោះស្រាយពី [ដៃគូរបស់ AWS](https://aws.amazon.com/guardduty/resources/partners/) គឺជាជម្រើសល្អបំផុត។
 
-Đối với một số Finding nhất định, chúng ta có thể sẽ chỉ cấu hình thông báo và giải quyết vấn đề một cách thủ công, thay vì tự động hoá. Bởi khi thiết kế quá trình tự động hoá, chúng ta sẽ phải vô cùng lưu ý và đánh giá kết quả mà quá trình Remediation mang lại, bao gồm cả ưu điểm và nhược điểm.
+សម្រាប់ការរកឃើញជាក់លាក់មួយចំនួន យើងអាចកំណត់រចនាសម្ព័ន្ធការជូនដំណឹងនិងដោះស្រាយបញ្ហាដោយដៃ ជំនួសឱ្យការធ្វើស្វ័យប្រវត្តិកម្ម។ នៅពេលរៀបចំដំណើរការស្វ័យប្រវត្តិកម្ម យើងត្រូវប្រុងប្រយ័ត្នខ្ពស់និងវាយតម្លៃលទ្ធផលដែលដំណើរការ Remediation នាំមកនូវគុណសម្បត្តិនិងគុណវិបត្តិ។
 
-> Ngoài ra, chúng ta có thể thiết lập **Target** đối một số tài nguyên AWS khác như **SSM Run Commands** hay **Step Function State Machine**.
+> លើសពីនេះទៀត យើងអាចរៀបចំ **Target** សម្រាប់ធនធាន AWS ផ្សេងទៀតដូចជា **SSM Run Commands** ឬ **Step Function State Machine**។
 
 ---
 
-**Giải quyết tình hình**
+**ការដោះស្រាយស្ថានការណ៍**
 
-Bởi Alice chưa từng thiết lập quá trình Remediation đối với Finding này, chúng ta cần phải thực hiện một cách thủ công. Trong khi đội ngũ Security đang tiến hành phân tích những hành vi của IAM user này để xác định rõ hơn phạm vi lỗ hổng, chúng ta cần phải thực hiện một số bước để vô hiệu hoá **Access Key** nhằm ngăn chặn lập tức những hành động tiếp theo.
-1. Truy cập vào IAM Console.
-2. Ở thanh điều hướng bên tay trái, chọn **Users**.
+ដោយសារតែ Alice មិនដែលបានរៀបចំដំណើរការ Remediation សម្រាប់ការរកឃើញនេះ យើងត្រូវតែអនុវត្តដោយដៃ។ ខណៈពេលដែលក្រុមសន្តិសុខកំពុងវិភាគអាកប្បកិរិយារបស់អ្នកប្រើប្រាស់ IAM នេះដើម្បីកំណត់វិសាលភាពនៃភាពងាយរងគ្រោះកាន់តែច្បាស់ យើងត្រូវអនុវត្តជំហានមួយចំនួនដើម្បីបិទ **Access Key** ដើម្បីបញ្ឈប់សកម្មភាពបន្ទាប់ភ្លាមៗ។
+
+1. ចូលទៅកាន់ IAM Console។
+2. នៅក្នុងរបារនាំផ្លូវខាងឆ្វេង ជ្រើសរើស **Users**។
 
 ![iam-users](/images/5-iam-users.png?width=90pc)
 
-3. Dựa trên GuardDuty Finding và thông báo E-mail, chúng ta dễ dàng chọn ra được IAM user - `GuardDuty-Example-Compromised-Simulated`.
-4. Ở user `GuardDuty-Example-Compromised-Simulated`, chúng ta chọn thanh **Security Credentials**.
+3. ផ្អែកលើ GuardDuty Finding និងការជូនដំណឹងតាមអ៊ីមែល យើងអាចជ្រើសរើសអ្នកប្រើប្រាស់ IAM យ៉ាងងាយស្រួល - `GuardDuty-Example-Compromised-Simulated`។
+4. នៅក្នុងអ្នកប្រើប្រាស់ `GuardDuty-Example-Compromised-Simulated` យើងជ្រើសរើសផ្ទាំង **Security Credentials**។
 
 ![iam-users-compromised-simulated-credential](/images/5-iam-users-compromised-simulated-credential.png?featherlight=false&width=90pc)
 
-5. Ở mục **Access Keys**, dựa trên thông tin **Access Key ID** từ Finding, chúng ta tiến hành nhấn nút `Make Inactive`.
+5. នៅក្នុងផ្នែក **Access Keys** ផ្អែកលើព័ត៌មាន **Access Key ID** ពី Finding យើងចុចប៊ូតុង `Make Inactive`។
 
 ![iam-users-compromised-simulated-credential-deactivate](/images/5-iam-users-compromised-simulated-credential-deactivate.png?featherlight=false&width=90pc)
 
-#### Cấu Hỏi Ôn Tập
-1. Nguồn dữ liệu nào đã được GuardDuty sử dụng để xác định mối nguy hại này?
-2. Những Permissions nào mà IAM user được cho phép sử dụng?
-3. Tại sao đội ngũ Security quyết định đi ngược lại với quá trình Remediation tự động hoá?
+#### សំណួររំលឹក
+1. តើប្រភពទិន្នន័យណាមួយដែល GuardDuty បានប្រើដើម្បីកំណត់អត្តសញ្ញាណគ្រោះថ្នាក់នេះ?
+2. តើការអនុញ្ញាតណាមួយដែលអ្នកប្រើប្រាស់ IAM ត្រូវបានអនុញ្ញាត?
+3. ហេតុអ្វីបានជាក្រុមសន្តិសុខសម្រេចចិត្តប្រឆាំងនឹងដំណើរការ Remediation ស្វ័យប្រវត្តិ?

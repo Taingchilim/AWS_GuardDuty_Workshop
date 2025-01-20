@@ -63,10 +63,6 @@ While you can see these Findings from the GuardDuty Console, most customers want
 
 > GuardDuty uses Threat Intelligence systems provided by the AWS Security team and 3rd parties such as *ProofPoint* and *CrowdStike*. You can extend GuardDuty's visibility by manually configuring the Trusted IP Lists (**Trusted IP Lists**) and the Threat Lists (**Threat Lists**). If you have set up GuardDuty under the Admin/Member structure, from the GuardDuty Admin account you can manage the lists above and let the Members accounts inherit. By default, Members accounts will not be able to edit these lists.
 
-{{% notice note %}}
-In this emulation scenario, *EC2 compromised instance* only accesses **EIP** of another EC2 instance in the same VPC to internalize the emulation process and data processing that only occurs in the same environment. your school. The CloudFormation template will automatically create a threat list (**Threat Lists**) and assign this **EIP** address to it.
-{{% /notice %}}
-
 ---
 
 **Check EventBridge Event Rule**

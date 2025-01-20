@@ -1,28 +1,29 @@
 ---
-title : "Làm quen với Amazon GuardDuty thông qua thực hành"
+title : "ស្វែងយល់ពី Amazon GuardDuty តាមរយៈការអនុវត្តជាក់ស្តែង"
 date :  "`r Sys.Date()`" 
 weight : 1
 chapter : false
 ---
 
-# Làm quen với **Amazon GuardDuty** thông qua thực hành
+# ស្វែងយល់ពី **Amazon GuardDuty** តាមរយៈការអនុវត្តជាក់ស្តែង
 
-#### Tổng quan
-Với **Amazon GuardDuty**, một dịch vụ được quản lý hoàn toàn bởi AWS, bài thực hành này sẽ khái quát làm thế nào để phát hiện những mối nguy hại đến hệ thống và khắc phục chúng. Chúng ta sẽ tiến hành phân tích, đánh giá và làm thế nào để báo động cũng như khắc phục các vấn đề bảo mật dựa trên những phát hiện (*Findings*) của GuardDuty.
+#### ទិដ្ឋភាពទូទៅ
+ជាមួយ **Amazon GuardDuty** ដែលជាសេវាកម្មគ្រប់គ្រងទាំងស្រុងដោយ AWS មេរៀនអនុវត្តនេះនឹងបង្ហាញពីរបៀបរកឃើញគ្រោះថ្នាក់ដល់ប្រព័ន្ធ និងវិធីដោះស្រាយ។ យើងនឹងធ្វើការវិភាគ វាយតម្លៃ និងរបៀបជូនដំណឹង ព្រមទាំងដោះស្រាយបញ្ហាសន្តិសុខដោយផ្អែកលើការរកឃើញ (*Findings*) របស់ GuardDuty។
 
-Nhằm chuẩn bị cho bài thực hành này, bằng cách sử dụng **CloudFormation Template** có sẵn, chúng ta sẽ tái hiện những cuộc tấn công và cách khắc phục tự động bằng việc kết hợp giữa **EventBridge Event Rules** và **Lambda Functions**.
-- **Cấp độ:** 300
-- **Thời lượng:** 1-2 tiếng
-- **Điều kiện cần:** IAM User (Admin) và AWS CLI
-- **Các chức năng của **CSF** (Cybersecurity Framework):**
-  - Bảo vệ (Protect)
-  - Phát hiện (Detect)
-  - Phản hồi (Respond)
-- **Các góc nhìn bảo mật của **CAF** (Cloud Adoption Framework):**
-  - Preventative (Khả năng phòng chống)
-  - Detective (Khả năng truy vết)
-  - Responsive (Khả năng phản ứng)
-- **Các dịch vụ AWS được sử dụng:**
+ដើម្បីត្រៀមសម្រាប់មេរៀនអនុវត្តនេះ ដោយប្រើប្រាស់ **CloudFormation Template** ដែលមានស្រាប់ យើងនឹងធ្វើការចម្លងការវាយប្រហារ និងដំណោះស្រាយស្វ័យប្រវត្តិដោយការរួមបញ្ចូលគ្នារវាង **EventBridge Event Rules** និង **Lambda Functions**។
+
+- **កម្រិត:** 300
+- **រយៈពេល:** 1-2 ម៉ោង
+- **តម្រូវការមុន:** IAM User (Admin) និង AWS CLI
+- **មុខងារ **CSF** (Cybersecurity Framework):**
+  - ការពារ (Protect)
+  - រកឃើញ (Detect)
+  - ឆ្លើយតប (Respond)
+- **ទស្សនៈសន្តិសុខនៃ **CAF** (Cloud Adoption Framework):**
+  - ការទប់ស្កាត់ (Preventative)
+  - ការរុករក (Detective)
+  - ការឆ្លើយតប (Responsive)
+- **សេវាកម្ម AWS ដែលប្រើប្រាស់:**
   - Amazon EventBridge
   - Amazon GuardDuty
   - AWS CloudTrail
@@ -30,28 +31,28 @@ Nhằm chuẩn bị cho bài thực hành này, bằng cách sử dụng **Cloud
   - VPC Security Groups
   - Amazon SNS
 
-#### Thiết lập
-> Bài thực hành sẽ được thiết lập ở **us-west-2 (Oregon)**.
+#### ការរៀបចំ
+> មេរៀនអនុវត្តនេះនឹងត្រូវបានរៀបចំនៅ **us-west-2 (Oregon)**។
 
-Chi tiết xem thêm ở phần [**Thiết lập môi trường**](1-environment-setup/).
+សម្រាប់ព័ត៌មានលម្អិត សូមមើល [**ការរៀបចំបរិស្ថាន**](1-environment-setup/)។
 
-#### Tình Huống
-Bài thực hành sẽ bao gồm các tình huống như sau:
-| Thứ tự | Tên | Đặc tả | Giải pháp |
+#### ករណីសិក្សា
+មេរៀនអនុវត្តនេះនឹងមានករណីសិក្សាដូចខាងក្រោម:
+| លំដាប់ | ឈ្មោះ | ការពិពណ៌នា | ដំណោះស្រាយ |
 | ------ | --- | ------ | --------- |
-| 1 | [Compromised EC2 instance](3-compromised-ec2-instance/) | Phát hiện và hồi phục EC2 instance bị tấn công | Sự kết hợp giữa **Amazon GuardDuty**, **Amazon EventBridge Event Rules** và **AWS Lambda** |
-| 2 | [Compromised IAM credentials](4-compromised-iam-credentials/) | Xác định một cá nhân đang chủ động gọi API đến hệ thống trên AWS | Khắc phục mối nguy hại này ngay lập tức một cách thủ công (manually) |
-| 3 | [IAM role exfiltration](5-iam-role-credential-exfiltration/) | Thông qua một credential bị rò rỉ, một cá nhân đang cố gắng xâm nhập và gọi API từ một máy chủ bên ngoài | Tiến hành khắc phục với **AWS Lambda** |
+| 1 | [Compromised EC2 instance](3-compromised-ec2-instance/) | រកឃើញនិងស្តារ EC2 instance ដែលត្រូវបានវាយប្រហារ | ការរួមបញ្ចូលគ្នារវាង **Amazon GuardDuty**, **Amazon EventBridge Event Rules** និង **AWS Lambda** |
+| 2 | [Compromised IAM credentials](4-compromised-iam-credentials/) | កំណត់អត្តសញ្ញាណបុគ្គលដែលកំពុងហៅ API ទៅកាន់ប្រព័ន្ធនៅលើ AWS | ដោះស្រាយគ្រោះថ្នាក់នេះភ្លាមៗដោយដៃ (manually) |
+| 3 | [IAM role exfiltration](5-iam-role-credential-exfiltration/) | តាមរយៈព័ត៌មានសម្ងាត់ដែលលេចធ្លាយ បុគ្គលម្នាក់កំពុងព្យាយាមចូលប្រើនិងហៅ API ពីម៉ាស៊ីនមេខាងក្រៅ | អនុវត្តការដោះស្រាយជាមួយ **AWS Lambda** |
 
-#### Dọn Dẹp
-Chi tiết ở phần [**Dọn dẹp môi trường**](7-environment-cleanup/).
+#### ការសម្អាត
+ព័ត៌មានលម្អិតនៅផ្នែក [**ការសម្អាតបរិស្ថាន**](7-environment-cleanup/)។
 
-#### Nội dung
+#### មាតិកា
 
-1. [Thiết lập môi trường](1-environment-setup/)
-2. [GuardDuty Hoạt Động Như Thế Nào?](2-how-it-works/)
-3. [Tình huống 1: Compromised EC2 instance](3-compromised-ec2-instance/)
-4. [Tình huống 2: Compromised IAM credentials](4-compromised-iam-credentials/)
-5. [Tình huống 3: IAM role exfiltration](5-iam-role-credential-exfiltration/)
-6. [Tóm lược](6-summary/)
-7. [Dọn dẹp môi trường](7-environment-cleanup/)
+1. [ការរៀបចំបរិស្ថាន](1-environment-setup/)
+2. [តើ GuardDuty ដំណើរការយ៉ាងដូចម្តេច?](2-how-it-works/)
+3. [ករណីសិក្សាទី 1: Compromised EC2 instance](3-compromised-ec2-instance/)
+4. [ករណីសិក្សាទី 2: Compromised IAM credentials](4-compromised-iam-credentials/)
+5. [ករណីសិក្សាទី 3: IAM role exfiltration](5-iam-role-credential-exfiltration/)
+6. [សេចក្តីសង្ខេប](6-summary/)
+7. [ការសម្អាតបរិស្ថាន](7-environment-cleanup/)

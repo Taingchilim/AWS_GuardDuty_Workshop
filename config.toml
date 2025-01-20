@@ -37,7 +37,7 @@ weight = 20
 [Languages.vi]
 title = "Làm quen với Amazon GuardDuty thông qua thực hành"
 weight = 2
-languageName = "Tiếng Việt"
+languageName = "Khmer"
 
 [[Languages.vi.menu.shortcuts]]
 name = "<i class='fab fa-aws'></i> AWS Study Group - Blog"

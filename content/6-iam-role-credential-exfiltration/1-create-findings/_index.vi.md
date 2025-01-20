@@ -1,54 +1,52 @@
 ---
-title : "Tạo các Finding"
+title : "បង្កើត Finding"
 date :  "`r Sys.Date()`" 
 weight : 1
 chapter : false
 pre : " <b> 6.1 </b> "
 ---
 
-**Tạo ra Finding một cách thủ công**
+**បង្កើត Finding ដោយដៃ**
 
-Các cuộc tấn công giả lập và Findings sẽ được tự động tạo ra từ CloudFormation Template, ngoài trừ một Finding. Đối với Finding này, bạn sẽ cần phải làm một số bước cụ thể như:
-1. Sao chép IAM security credential tạm thời từ EC2 instance.
-2. Thực hiện gọi API từ máy tính cá nhân một cách thủ công.
+ការវាយប្រហារក្លែងក្លាយនិង Finding នឹងត្រូវបានបង្កើតដោយស្វ័យប្រវត្តិពី CloudFormation Template លើកលែងតែ Finding មួយ។ សម្រាប់ Finding នេះ អ្នកនឹងត្រូវធ្វើជំហានជាក់លាក់មួយចំនួនដូចជា:
+1. ចម្លង IAM security credential បណ្តោះអាសន្នពី EC2 instance។ 
+2. អនុវត្តការហៅ API ពីកុំព្យូទ័រផ្ទាល់ខ្លួនដោយដៃ។
 
-> Để tạo ra Finding này, chúng ta phải thực hiện gọi API đến từ bên ngoài hệ thống mạng của AWS.
+> ដើម្បីបង្កើត Finding នេះ យើងត្រូវតែអនុវត្តការហៅ API ពីក្រៅបណ្តាញ AWS។
 
-**Nội dung**
-- [Truy xuất IAM security credential tạm thời với Systems Manager](#truy-xuất-iam-security-credential-tạm-thời-với-systems-manager)
-- [Tạo AWS CLI Profile trên máy tính cá nhân](#tạo-aws-cli-profile-trên-máy-tính-cá-nhân)
-- [Thực hiện câu lệnh AWS CLI bằng IAM security credential tạm thời](#thực-hiện-câu-lệnh-aws-cli-bằng-iam-security-credential-tạm-thời)
+**មាតិកា**
+- [ទាញយក IAM security credential បណ្តោះអាសន្នជាមួយ Systems Manager](#ទាញយក-iam-security-credential-បណ្តោះអាសន្នជាមួយ-systems-manager)
 
-#### Truy xuất IAM security credential tạm thời với Systems Manager
+#### ទាញយក IAM security credential បណ្តោះអាសន្នជាមួយ Systems Manager
 
-Để tiến hành giả lập cuộc tấn công cuối cùng này, bạn cần phải truy xuất thành công IAM security credential tạm thời được sinh ra bởi IAM role thuộc EC2 instance. Chúng ta có thể thử 1 trong 2 cách sau:
-1. Truy cập SSH vào EC2 instance và tiến hành truy vấn dữ liệu **Metadata** của EC2 instance.
-2. Sử dụng chức năng **Session Manager** của dịch vụ AWS System Manager.
-   1. Truy cập vào System Manager Console ở **us-west-2**.
-   2. Ở thanh điều hướng bên tay trái, chọn **Fleet Manager**, chúng ta sẽ thấy một *managed EC2 instance* với định dạng tên như sau - `GuardDuty-Example: Compromised Instance: Scenario 3` với trạng thái **SSM Agent ping status** là `Online`.
+ដើម្បីធ្វើការក្លែងក្លាយការវាយប្រហារចុងក្រោយនេះ អ្នកត្រូវតែទាញយក IAM security credential បណ្តោះអាសន្នដែលបង្កើតដោយ IAM role របស់ EC2 instance ឱ្យបានជោគជ័យ។ យើងអាចសាកល្បងវិធីមួយក្នុងចំណោមវិធីទាំងពីរខាងក្រោម:
+1. ចូលប្រើ SSH ទៅកាន់ EC2 instance និងធ្វើការសាកសួរទិន្នន័យ **Metadata** របស់ EC2 instance។
+2. ប្រើប្រាស់មុខងារ **Session Manager** របស់សេវាកម្ម AWS System Manager។
+   1. ចូលទៅកាន់ System Manager Console នៅ **us-west-2**។
+   2. នៅរបារនាំផ្លូវខាងឆ្វេង ជ្រើសរើស **Fleet Manager** យើងនឹងឃើញ *managed EC2 instance* មួយដែលមានទម្រង់ឈ្មោះដូចខាងក្រោម - `GuardDuty-Example: Compromised Instance: Scenario 3` ដែលមានស្ថានភាព **SSM Agent ping status** ជា `Online`។
 
 ![6-system-manager-fleet-manager](/images/6-system-manager-fleet-manager.png?featherlight=false&width=90pc)
 
-   3. Tiến hành sử dụng chức năng **Session Manager** bằng cách nhấn nút `Instance actions` và chọn `Start Session`.
+   3. ធ្វើការប្រើប្រាស់មុខងារ **Session Manager** ដោយចុចប៊ូតុង `Instance actions` និងជ្រើសរើស `Start Session`។
 
 ![system-manager-fleet-manager-start-session](/images/6-system-manager-fleet-manager-start-session.png?featherlight=false&width=90pc)
 
-   4. Thực hiện câu lệnh truy vấn dữ liệu **Metadata**:
+   4. អនុវត្តពាក្យបញ្ជាសាកសួរទិន្នន័យ **Metadata**:
 
    ```bash
    curl http://169.254.169.254/latest/meta-data/iam/security-credentials/GuardDuty-Example-EC2-Compromised
    ```
 
-3. Tiến hành ghi chú một số thông tin quan trọng sau
+3. ធ្វើការកត់ចំណាំព័ត៌មានសំខាន់មួយចំនួនដូចខាងក្រោម
    1. **Access Key ID**
    2. **Secret Access Key**
    3. **Session Token**
 
 ![system-manager-instance-session-start](/images/6-system-manager-instance-session-start.png?featherlight=false&width=90pc)
 
-#### Tạo AWS CLI Profile trên máy tính cá nhân
+# ការបង្កើត AWS CLI Profile នៅលើកុំព្យូទ័រផ្ទាល់ខ្លួន
 
-Sau khi thành công truy xuất IAM security credential tạm thời, chúng ta sẽ tiến hành tạo một **AWS CLI Profile** trên máy tính cá nhân. Từ Terminal/CMD/PowerShell, chúng ta tiến hành thay thế các `<PLACEHOLDER>` với giá trị cụ thể đã thu thập, sau đó thực hiện nhập các lệnh sau:
+បន្ទាប់ពីទទួលបានជោគជ័យក្នុងការទាញយក IAM security credential បណ្តោះអាសន្ន យើងនឹងបង្កើត **AWS CLI Profile** មួយនៅលើកុំព្យូទ័រផ្ទាល់ខ្លួន។ ពី Terminal/CMD/PowerShell យើងនឹងជំនួស `<PLACEHOLDER>` ដោយតម្លៃជាក់លាក់ដែលបានប្រមូល រួចបញ្ចូលពាក្យបញ្ជាដូចខាងក្រោម៖
 
 ```bash
 aws configure set profile.badbob.region us-west-2
@@ -57,9 +55,9 @@ aws configure set profile.badbob.aws_secret_access_key <SECRET_ACCESS_KEY>
 aws configure set profile.badbob.aws_session_token <SESSION_TOKEN>
 ```
 
-> Chúng ta có thể kiểm tra xem nếu Profile đã được tạo hay chưa bằng việc truy cập đến [nơi chứa các **AWS security credentials**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where).
+> យើងអាចត្រួតពិនិត្យមើលថាតើ Profile ត្រូវបានបង្កើតហើយឬនៅ ដោយចូលទៅកាន់[កន្លែងផ្ទុក **AWS security credentials**](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html#cli-configure-files-where)។
 
-Chúng ta có thể sử dụng câu lệnh sau để tiến hành kiểm tra nhanh xem đã có **AWS CLI Profile** tên là `badbob` hay chưa.
+យើងអាចប្រើពាក្យបញ្ជាខាងក្រោមដើម្បីពិនិត្យមើលយ៉ាងរហ័សថាតើមាន **AWS CLI Profile** ឈ្មោះ `badbob` ហើយឬនៅ។
 
 ```bash
 aws configure --profile badbob
@@ -67,11 +65,12 @@ aws configure --profile badbob
 
 ![aws-cli-configure-profile](/images/6-aws-cli-configure-profile.png?featherlight=false&width=90pc)
 
-#### Thực hiện câu lệnh AWS CLI bằng IAM security credential tạm thời
-Bằng các câu lệnh **AWS CLI** dưới đây, chúng ta tiến hành thực hiện gọi API đến những dịch vụ AWS khác nhau.
+# ការប្រតិបត្តិពាក្យបញ្ជា AWS CLI ដោយប្រើ IAM security credential បណ្តោះអាសន្ន
+
+ដោយប្រើពាក្យបញ្ជា **AWS CLI** ខាងក្រោម យើងនឹងហៅ API ទៅកាន់សេវាកម្ម AWS ផ្សេងៗ។
 
 ---
-**IAM user có bất kỳ quyền hạn nào?**
+**តើ IAM user មានសិទ្ធិអ្វីខ្លះ?**
 
 ```bash
 aws iam get-user --profile badbob
@@ -79,7 +78,7 @@ aws iam create-user --user-name Chuck --profile badbob
 ```
 
 ---
-**Liệu có quyền truy cập đến DynamoDB?**
+**តើមានសិទ្ធិចូលប្រើ DynamoDB ដែរឬទេ?**
 
 ```bash
 aws dynamodb list-tables --profile badbob
@@ -87,7 +86,7 @@ aws dynamodb describe-table --table-name GuardDuty-Example-Customer-DB --profile
 ```
 
 ---
-**Liệu có quyền truy vấn dữ liệu đến DynamoDB?**
+**តើមានសិទ្ធិស្វែងរកទិន្នន័យពី DynamoDB ដែរឬទេ?**
 
 ```bash
 aws dynamodb scan --table-name GuardDuty-Example-Customer-DB --profile badbob
@@ -98,7 +97,7 @@ aws dynamodb list-tables --profile badbob
 ```
 
 ---
-**Liệu có thể truy cập đến System Manager Parameter Store?**
+**តើអាចចូលប្រើ System Manager Parameter Store បានដែរឬទេ?**
 
 ```bash
 aws ssm describe-parameters --profile badbob

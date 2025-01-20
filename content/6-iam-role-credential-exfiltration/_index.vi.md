@@ -1,14 +1,13 @@
 ---
-title : "Credential Exfiltration"
+title : "ការលួចព័ត៌មានសម្ងាត់"
 date :  "`r Sys.Date()`" 
 weight : 6
 chapter : false
 pre : " <b> 6. </b> "
 ---
 
+**ករណីទី៣: ការលួចព័ត៌មានសម្ងាត់តួនាទី IAM**
 
-**Tình huống 3: IAM Role Credential Exfiltration**
-
-**Nội dung**
-1. [Tạo ra Finding một cách thủ công](1-create-findings/)
-2. [IAM Role Credential Exfiltration](2-senario/)
+**មាតិកា**
+1. [ការបង្កើត Finding ដោយដៃ](1-create-findings/)
+2. [ការលួចព័ត៌មានសម្ងាត់តួនាទី IAM](2-senario/)

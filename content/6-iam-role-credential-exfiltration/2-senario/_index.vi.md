@@ -1,62 +1,62 @@
 ---
-title : "Credential Exfiltration"
+title : "ការលួចព័ត៌មានសម្ងាត់"
 date :  "`r Sys.Date()`" 
 weight : 2
 chapter : false
 pre : " <b> 6.2 </b> "
 ---
 
-**Contents**
-- [Kiến Trúc Tổng Quan](#kiến-trúc-tổng-quan)
-- [Quá Trình Điều Tra](#quá-trình-điều-tra)
-- [Câu Hỏi Ôn Tập](#câu-hỏi-ôn-tập)
+**មាតិកា**
+- [ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ](#ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ)
+- [ដំណើរការស៊ើបអង្កេត](#ដំណើរការស៊ើបអង្កេត)
+- [សំណួររំលឹក](#សំណួររំលឹក)
 
-#### Kiến Trúc Tổng Quan
+#### ទិដ្ឋភាពរួមនៃរចនាសម្ព័ន្ធ
 ![architecture-overview](/images/6-architecture-overview.png?featherlight=false&width=60pc)
 
-1. Máy chủ từ xa truy cập đến *EC2 compromised instance* và đánh cắp **IAM role credential** thông qua dữ liệu **Metadata**.
-2. Máy chủ này thiết lập AWS CLI Profile để tiến hành gọi API đến tài khoản AWS.
-3. GuardDuty sinh ra những Findings liên quan và đồng thời gửi tới GuardDuty console và EventBridge Events.
-4. EventBridge Event Rule kích hoạt SNS Topic và Lambda Function.
-5. SNS Topic tiến hành gửi thông báo E-mail với chi tiết Finding.
-6. Lambda Function tiến hành gán một chính sách mới nhằm thu hồi mọi Sessions đang hoạt động.
+1. ម៉ាស៊ីនមេពីចម្ងាយចូលទៅកាន់ *EC2 compromised instance* និងលួចយក **IAM role credential** តាមរយៈទិន្នន័យ **Metadata**។
+2. ម៉ាស៊ីនមេនេះបង្កើត AWS CLI Profile ដើម្បីធ្វើការហៅ API ទៅកាន់គណនី AWS។
+3. GuardDuty បង្កើត Findings ពាក់ព័ន្ធ និងផ្ញើទៅកាន់ GuardDuty console និង EventBridge Events។
+4. EventBridge Event Rule ជំរុញឱ្យដំណើរការ SNS Topic និង Lambda Function។
+5. SNS Topic ធ្វើការផ្ញើការជូនដំណឹងតាមអ៊ីមែលជាមួយនឹងព័ត៌មានលម្អិតនៃ Finding។
+6. Lambda Function ធ្វើការកំណត់គោលការណ៍ថ្មីដើម្បីដកហូត Sessions ដែលកំពុងដំណើរការទាំងអស់។
 
-#### Quá Trình Điều Tra
+#### ដំណើរការស៊ើបអង្កេត
 
 ---
-**Truy cập GuardDuty Console**
+**ចូលទៅកាន់ GuardDuty Console**
 
-Để tiến hành xem xét các Findings:
-1. Truy cập vào GuardDuty Console ở **us-west-2**
-2. Chúng ta sẽ thấy được Findings với định dạng như sau - `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration`.
+ដើម្បីពិនិត្យមើល Findings:
+1. ចូលទៅកាន់ GuardDuty Console នៅ **us-west-2**
+2. យើងនឹងឃើញ Findings មានទម្រង់ដូចខាងក្រោម - `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration`។
 
 ![guardduty-finding-unauthorized-iam-instance-credential-exfiltration](/images/6-guardduty-finding-unauthorized-iam-instance-credential-exfiltration.png?featherlight=false&width=90pc)
 
-3. Nếu không có bất kỳ Finding nào, tiến hành nhấn nút Refresh và đợi.
-4. Từ Finding - `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration`, chúng ta có thể dễ dàng truy xuất một số thông tin sau:
-   1. **High Severity**
-   2. Thông báo rằng có người cố ý sử dụng IAM role credential ở ngoài EC2 instance
+3. ប្រសិនបើគ្មាន Finding ណាមួយ សូមចុចប៊ូតុង Refresh និងរង់ចាំ។
+4. ពី Finding - `UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration` យើងអាចទាញយកព័ត៌មានមួយចំនួនដូចខាងក្រោម:
+   1. **កម្រិតគ្រោះថ្នាក់ខ្ពស់**
+   2. ការជូនដំណឹងថាមាននរណាម្នាក់កំពុងព្យាយាមប្រើប្រាស់ IAM role credential នៅខាងក្រៅ EC2 instance
 
 ![guardduty-finding-unauthorized-iam-instance-credential-exfiltration-details](/images/6-guardduty-finding-unauthorized-iam-instance-credential-exfiltration-details.png?featherlight=false&width=90pc)
 
-> Mỗi GuardDuty Finding sẽ được gán một mức độ nghiêm trọng cụ thể - Low/Medium/High. Các mức độ này được định nghĩa bởi AWS, chúng được dùng để phân loại và xác định  
+> GuardDuty Finding នីមួយៗនឹងត្រូវបានកំណត់កម្រិតគ្រោះថ្នាក់ជាក់លាក់ - ទាប/មធ្យម/ខ្ពស់។ កម្រិតទាំងនេះត្រូវបានកំណត់ដោយ AWS ដែលត្រូវបានប្រើប្រាស់ដើម្បីចាត់ថ្នាក់និងកំណត់អត្តសញ្ញាណ
 
 ---
-**Kiểm tra EventBridge Event Rule**
+**ពិនិត្យមើល EventBridge Event Rule**
 
-1. Truy cập vào CloudWatch Console ở **us-west-2**.
-2. Ở thanh điều hướng bên tay trái, dưới **Events**, chọn **Rules**. Bạn sẽ thấy có 3 quy tắc đã được thiết lập (bởi CloudFormation Template), bắt đầu với tiền tố có dạng sau `GuardDuty-Event.`.
-3. Tiến hành chọn quy tắc có tên là `GuardDuty-Event-IAMUser-InstanceCredentialExfiltration`.
+1. ចូលទៅកាន់ CloudWatch Console នៅ **us-west-2**។
+2. នៅរបារនាំផ្លូវខាងឆ្វេង ក្រោម **Events** ជ្រើសរើស **Rules**។ អ្នកនឹងឃើញច្បាប់ចំនួន 3 ត្រូវបានបង្កើត (ដោយ CloudFormation Template) ដែលចាប់ផ្តើមដោយបុព្វបទដូចខាងក្រោម `GuardDuty-Event.`។
+3. ជ្រើសរើសច្បាប់ដែលមានឈ្មោះ `GuardDuty-Event-IAMUser-InstanceCredentialExfiltration`។
 
 ![eventbridge-event-iam-credential-exfiltration](/images/6-eventbridge-event-iam-credential-exfiltration.png?featherlight=false&width=90pc)
 
-4. Ở mục **Event Pattern**, chúng ta dễ dàng thấy được nguồn dữ liệu mà Event này sẽ ghi nhận và tiến hành kích hoạt các **Target** khi có bất kỳ sự kiện nào.
+4. នៅក្នុងផ្នែក **Event Pattern** យើងអាចមើលឃើញប្រភពទិន្នន័យដែល Event នេះនឹងកត់ត្រា និងជំរុញឱ្យដំណើរការ **Target** នៅពេលមានព្រឹត្តិការណ៍ណាមួយកើតឡើង។
 
 ![eventbridge-iam-exfiltration-event-pattern-targets](/images/6-eventbridge-iam-exfiltration-event-pattern-targets.png?featherlight=false&width=90pc)
 
-> Bạn có thể tạo EventBridge Event Rule nhằm ghi nhận sự kiện của một loại Finding cụ thể hay bất kỳ loại Finding nào.
+> អ្នកអាចបង្កើត EventBridge Event Rule ដើម្បីកត់ត្រាព្រឹត្តិការណ៍នៃ Finding ជាក់លាក់ឬ Finding ណាមួយ។
 
-Sau đây là một ví dụ nhằm ghi nhận bất kỳ sự kiện nào thuộc GuardDuty Findings.
+ខាងក្រោមនេះគឺជាឧទាហរណ៍ដើម្បីកត់ត្រាព្រឹត្តិការណ៍ណាមួយដែលជា GuardDuty Findings។
 ```
 {
   "detail-type": [
@@ -69,49 +69,50 @@ Sau đây là một ví dụ nhằm ghi nhận bất kỳ sự kiện nào thu�
 ```
 
 ---
-**Kiểm tra quá trình Remediation với Lambda Function**
+**ពិនិត្យដំណើរការ Remediation ជាមួយ Lambda Function**
 
-Alice đã thiết lập quá trình Remediation nhằm phản ứng tự động với mối nguy hại này thông qua Lambda function. Chúng ta có thể kiểm tra đoạn mã được lập trình để hiểu thêm về quá trình này.
-1. Truy cập vào Lambda Console ở **us-west-2**.
-2. Ở thanh điều hướng bên tay trái, chọn **Functions** và tìm kiếm `GuardDuty-Example-Remediation-InstanceCredentialExfiltration`.
+Alice បានរៀបចំដំណើរការ Remediation ដើម្បីឆ្លើយតបដោយស្វ័យប្រវត្តិទៅនឹងការគំរាមកំហែងនេះតាមរយៈ Lambda function។ យើងអាចពិនិត្យមើលកូដដែលបានសរសេរដើម្បីយល់ដឹងបន្ថែមអំពីដំណើរការនេះ។
+
+1. ចូលទៅកាន់ Lambda Console នៅ **us-west-2**។
+2. នៅបន្ទាត់រុករកខាងឆ្វេង ជ្រើសរើស **Functions** ហើយស្វែងរក `GuardDuty-Example-Remediation-InstanceCredentialExfiltration`។
 
 ![lambda-function](/images/6-lambda-function.png?featherlight=false&width=90pc)
 
-3. Về cơ bản, Lambda function này sẽ truy xuất thông tin về IAM Role từ Finding và tiến hành thêm IAM Policy.
+3. ជាមូលដ្ឋាន Lambda function នេះនឹងទាញយកព័ត៌មានអំពី IAM Role ពី Finding និងបន្ថែម IAM Policy។
 
 ![lambda-function-code](/images/6-lambda-function-code.png?featherlight=false&width=90pc)
 
-> Những Permissions nào mà Lambda Function cần để thực hiện quá trình Remediation? Liệu có rủi ro nào có thể xảy ra với cấp độ Permissions hiện tại?
+> តើ Permissions អ្វីខ្លះដែល Lambda Function ត្រូវការដើម្បីអនុវត្តដំណើរការ Remediation? តើមានហានិភ័យអ្វីខ្លះដែលអាចកើតឡើងជាមួយនឹងកម្រិត Permissions បច្ចុប្បន្ន?
 
 ---
-**Kiểm chứng quá trình Remediation**
+**ផ្ទៀងផ្ទាត់ដំណើរការ Remediation**
 
-Để tiến hành kiểm chứng liệu Finding `InstanceCredentialExfiltration` đã được giải quyết triệt để, chúng ta sẽ lần lượt tiến hành các bước sau.
+ដើម្បីធ្វើការផ្ទៀងផ្ទាត់ថា Finding `InstanceCredentialExfiltration` ត្រូវបានដោះស្រាយទាំងស្រុង យើងនឹងធ្វើតាមជំហានដូចខាងក្រោម។
 
-- **Kiểm chứng thông qua AWS CLI**
+- **ផ្ទៀងផ្ទាត់តាមរយៈ AWS CLI**
 
-Tiến hành thực thi câu lệnh sau:
+អនុវត្តពាក្យបញ្ជាខាងក្រោម:
 
 ```bash
 aws dynamodb list-tables --profile badbob
 ```
 
-Chúng ta sẽ nhận được kết quả trả về sẽ là `AccessDeniedException` cho câu lệnh thực thi.
+យើងនឹងទទួលបាន `AccessDeniedException` សម្រាប់ការអនុវត្តពាក្យបញ្ជា។
 
 ![aws-cli-dynamodb-access-denied-exception](/images/6-aws-cli-dynamodb-access-denied-exception.png?featherlight=false&width=90pc)
 
-- **Kiểm chứng thông qua AWS Console**
+- **ផ្ទៀងផ្ទាត់តាមរយៈ AWS Console**
 
-Tiến hành đánh giá IAM Policy đã được thêm vào IAM Role trong quá trình Remediation.
-1. Truy cập vào IAM Console.
-2. Ở thanh điều hướng bên tay trái, chọn **Roles** và tìm kiếm `GuardDuty-Example-EC2-Compromised`. Đây là IAM Role mà chúng ta sẽ xác định được thông qua GuardDuty Finding.
+ធ្វើការវាយតម្លៃ IAM Policy ដែលត្រូវបានបន្ថែមទៅ IAM Role ក្នុងដំណើរការ Remediation។
+1. ចូលទៅកាន់ IAM Console។
+2. នៅបន្ទាត់រុករកខាងឆ្វេង ជ្រើសរើស **Roles** ហើយស្វែងរក `GuardDuty-Example-EC2-Compromised`។ នេះគឺជា IAM Role ដែលយើងនឹងកំណត់តាមរយៈ GuardDuty Finding។
 
 ![iam-role](/images/6-iam-role.png?featherlight=false&width=90pc)
 
-3. Bấm chọn thanh **Permissions**, nhấn vào chính sách IAM Policy `RevokeOldSessions`.
+3. ចុចលើផ្ទាំង **Permissions** ចុចលើគោលការណ៍ IAM Policy `RevokeOldSessions`។
 
 ![iam-role-permissions](/images/6-iam-role-permissions.png?featherlight=false&width=90pc)
 
-#### Câu Hỏi Ôn Tập
-1. Có những rủi ro liên quan nào xuất hiện trong quá trình Remediation?
-2. Liệu có những EC2 instances khác cũng sử dụng IAM Role này không?
+#### សំណួររំលឹក
+1. តើមានហានិភ័យពាក់ព័ន្ធអ្វីខ្លះដែលកើតឡើងក្នុងដំណើរការ Remediation?
+2. តើមាន EC2 instances ផ្សេងទៀតដែលប្រើប្រាស់ IAM Role នេះដែរឬទេ?
